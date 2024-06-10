@@ -41,6 +41,7 @@ class PhaseIITreeMaker: public Tool {
   int LoadMRDTrackReco(int SubEventNumber);
   void LoadAllMRDHits(bool IsData);
   void FillRecoDebugInfo();
+  void FillSimpleRecoInfo();
   void FillTruthRecoDiffInfo(bool got_mc, bool got_reco);
 
   /// \brief Summary of Reconstructed vertex
@@ -306,6 +307,28 @@ class PhaseIITreeMaker: public Tool {
   double fPointVtxDirZ;
   double fPointVtxFOM;
   int fPointVtxStatus;
+
+  // Simple Reco
+  int fSimpleFlag;
+  double fSimpleEnergy;
+  double fSimpleVtxX;
+  double fSimpleVtxY;
+  double fSimpleVtxZ;
+  double fSimpleStopVtxX;
+  double fSimpleStopVtxY;
+  double fSimpleStopVtxZ;
+  double fSimpleCosTheta;
+  double fSimplePt;
+  int fSimpleFV;
+  double fSimpleMrdEnergyLoss;
+  double fSimpleTrackLengthInMRD;
+  double fSimpleTrackLengthInTank;
+  double fSimpleMRDStartX;
+  double fSimpleMRDStartY;
+  double fSimpleMRDStartZ;
+  double fSimpleMRDStopX;
+  double fSimpleMRDStopY;
+  double fSimpleMRDStopZ;
  
   // Extended Vertex
   double fRecoVtxX;
@@ -352,6 +375,7 @@ class PhaseIITreeMaker: public Tool {
   bool MCTruth_fill = 0; //Output the MC truth information
   bool TankReco_fill = 0;
   bool MRDReco_fill = 0;
+  bool SimpleReco_fill = 0;
   bool RecoDebug_fill = 0; //Outputs results of Reconstruction at each step (best fits, FOMs, etc.)
   bool muonTruthRecoDiff_fill = 0; //Output difference in tmuonruth and reconstructed values
   bool SiPMPulseInfo_fill = 0;

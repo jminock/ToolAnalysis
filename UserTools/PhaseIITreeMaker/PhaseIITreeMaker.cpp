@@ -24,6 +24,7 @@ bool PhaseIITreeMaker::Initialise(std::string configfile, DataModel &data){
   m_variables.Get("MRDReco_fill", MRDReco_fill);
   m_variables.Get("TankReco_fill", TankReco_fill);
   m_variables.Get("RecoDebug_fill", RecoDebug_fill);
+  m_variables.Get("SimpleReco_fill", SimpleReco_fill);
   m_variables.Get("muonTruthRecoDiff_fill", muonTruthRecoDiff_fill);
 
   m_variables.Get("SiPMPulseInfo_fill",SiPMPulseInfo_fill);
@@ -259,6 +260,30 @@ bool PhaseIITreeMaker::Initialise(std::string configfile, DataModel &data){
       fPhaseIITrigTree->Branch("recoPhi",&fRecoPhi,"recoPhi/D");
       fPhaseIITrigTree->Branch("recoVtxFOM",&fRecoVtxFOM,"recoVtxFOM/D");
       fPhaseIITrigTree->Branch("recoStatus",&fRecoStatus,"recoStatus/I");
+    }
+
+    //Michael's Simple Reconstruction
+    if(SimpleReco_fill){
+      fPhaseIITrigTree->Branch("simpleRecoFlag",&fSimpleFlag,"simpleRecoFlag/I");
+      fPhaseIITrigTree->Branch("simpleRecoEnergy",&fSimpleEnergy,"simpleRecoEnergy/D");
+      fPhaseIITrigTree->Branch("simpleRecoVtxX",&fSimpleVtxX,"simpleRecoVtxX/D");
+      fPhaseIITrigTree->Branch("simpleRecoVtxY",&fSimpleVtxY,"simpleRecoVtxY/D");
+      fPhaseIITrigTree->Branch("simpleRecoVtxZ",&fSimpleVtxZ,"simpleRecoVtxZ/D");
+      fPhaseIITrigTree->Branch("simpleRecoStopVtxX",&fSimpleStopVtxX,"simpleRecoStopVtxX/D");
+      fPhaseIITrigTree->Branch("simpleRecoStopVtxY",&fSimpleStopVtxY,"simpleRecoStopVtxY/D");
+      fPhaseIITrigTree->Branch("simpleRecoStopVtxZ",&fSimpleStopVtxZ,"simpleRecoStopVtxZ/D");
+      fPhaseIITrigTree->Branch("simpleRecoCosTheta",&fSimpleCosTheta,"simpleRecoCosTheta/D");
+      fPhaseIITrigTree->Branch("simpleRecoPt",&fSimplePt,"simpleRecoPt/D");
+      fPhaseIITrigTree->Branch("simpleRecoFV",&fSimpleFV,"simpleRecoFV/I");
+      fPhaseIITrigTree->Branch("simpleRecoMrdEnergyLoss",&fSimpleMrdEnergyLoss,"simpleRecoMrdEnergyLoss/D");
+      fPhaseIITrigTree->Branch("simpleRecoTrackLengthInMRD",&fSimpleTrackLengthInMRD,"simpleRecoTrackLengthInMRD/D");
+      fPhaseIITrigTree->Branch("simpleRecoMRDStartX",&fSimpleMRDStartX,"simpleRecoMRDStartX/D");
+      fPhaseIITrigTree->Branch("simpleRecoMRDStartY",&fSimpleMRDStartY,"simpleRecoMRDStartY/D");
+      fPhaseIITrigTree->Branch("simpleRecoMRDStartZ",&fSimpleMRDStartZ,"simpleRecoMRDStartZ/D");
+      fPhaseIITrigTree->Branch("simpleRecoMRDStopX",&fSimpleMRDStopX,"simpleRecoMRDStopX/D");
+      fPhaseIITrigTree->Branch("simpleRecoMRDStopY",&fSimpleMRDStopY,"simpleRecoMRDStopY/D");
+      fPhaseIITrigTree->Branch("simpleRecoMRDStopZ",&fSimpleMRDStopZ,"simpleRecoMRDStopZ/D");
+      fPhaseIITrigTree->Branch("simpleRecoTrackLengthInTank",&fSimpleTrackLengthInTank,"simpleRecoTrackLengthInTank/D");
     }
   
     //MC truth information for muons
@@ -782,6 +807,8 @@ bool PhaseIITreeMaker::Execute(){
       for(int i=0; i < (int) MrdTimeClusters.size(); i++) fNumClusterTracks += this->LoadMRDTrackReco(i);
     }
 
+    if(SimpleReco_fill) this->FillSimpleRecoInfo();
+
     bool got_reco = false;
     if(TankReco_fill) got_reco = this->FillTankRecoInfo();
 
@@ -996,7 +1023,28 @@ void PhaseIITreeMaker::ResetVariables() {
     fMRDStop.clear();
     fMRDThrough.clear();
   }
-
+  if(SimpleReco_fill){
+    fSimpleFlag = -9999;
+    fSimpleEnergy = -9999;
+    fSimpleVtxX = -9999;
+    fSimpleVtxY = -9999;
+    fSimpleVtxZ = -9999;
+    fSimpleStopVtxX = -9999;
+    fSimpleStopVtxY = -9999;
+    fSimpleStopVtxZ = -9999;
+    fSimpleCosTheta = -9999;
+    fSimplePt = -9999;
+    fSimpleFV = -9999;
+    fSimpleMrdEnergyLoss = -9999;
+    fSimpleTrackLengthInMRD = -9999;
+    fSimpleTrackLengthInTank = -9999;
+    fSimpleMRDStartX = -9999;
+    fSimpleMRDStartY = -9999;
+    fSimpleMRDStartZ = -9999;
+    fSimpleMRDStopX = -9999;
+    fSimpleMRDStopY = -9999;
+    fSimpleMRDStopZ = -9999;
+  }
   if(TankHitInfo_fill){
     fIsFiltered.clear();
     fHitX.clear();
@@ -1447,6 +1495,57 @@ bool PhaseIITreeMaker::FillTankRecoInfo() {
     fRecoStatus = recovtx->GetStatus();
   }
   return got_reco_info;
+}
+
+void PhaseIITreeMaker::FillSimpleRecoInfo() {
+  auto* reco_event = m_data->Stores["RecoEvent"];
+  if (!reco_event) {
+    Log("Error: The PhaseITreeMaker tool could not find the RecoEvent Store", v_error, verbosity);
+  }
+  int SimpleRecoFlag;
+  bool SimpleRecoFV;
+  double SimpleRecoEnergy, SimpleRecoCosTheta, SimpleRecoPt, SimpleRecoMrdEnergyLoss, SimpleRecoTrackLengthInMRD;
+  double SimpleRecoTrackLengthInTank;
+  Position SimpleRecoVtx;
+  Position SimpleRecoStopVtx;
+  Position SimpleRecoMRDStart;
+  Position SimpleRecoMRDStop;
+  auto get_flag = m_data->Stores["RecoEvent"]->Get("SimpleRecoFlag",SimpleRecoFlag);
+  auto get_energy = m_data->Stores["RecoEvent"]->Get("SimpleRecoEnergy",SimpleRecoEnergy);
+  auto get_vtx = m_data->Stores["RecoEvent"]->Get("SimpleRecoVtx",SimpleRecoVtx);
+  auto get_stopvtx = m_data->Stores["RecoEvent"]->Get("SimpleRecoStopVtx",SimpleRecoStopVtx);
+  auto get_cos = m_data->Stores["RecoEvent"]->Get("SimpleRecoCosTheta",SimpleRecoCosTheta);
+  auto get_pt = m_data->Stores["RecoEvent"]->Get("SimpleRecoPt",SimpleRecoPt);
+  auto get_fv = m_data->Stores["RecoEvent"]->Get("SimpleRecoFV",SimpleRecoFV);
+  auto get_mrdenergy = m_data->Stores["RecoEvent"]->Get("SimpleRecoMrdEnergyLoss",SimpleRecoMrdEnergyLoss);
+  auto get_mrdtrack = m_data->Stores["RecoEvent"]->Get("SimpleRecoTrackLengthInMRD",SimpleRecoTrackLengthInMRD);
+  auto get_tanktrack = m_data->Stores["RecoEvent"]->Get("SimpleRecoTrackLengthInTank",SimpleRecoTrackLengthInTank);
+  auto get_mrdstart = m_data->Stores["RecoEvent"]->Get("SimpleRecoMRDStart",SimpleRecoMRDStart);
+  auto get_mrdstop = m_data->Stores["RecoEvent"]->Get("SimpleRecoMRDStop",SimpleRecoMRDStop); 
+
+  if(get_flag && get_energy && get_vtx && get_stopvtx && get_cos && get_pt && get_fv && get_mrdenergy && get_mrdtrack && get_mrdstart && get_mrdstop){
+    fSimpleFlag = SimpleRecoFlag;
+    fSimpleEnergy = SimpleRecoEnergy;
+    fSimpleVtxX = SimpleRecoVtx.X();
+    fSimpleVtxY = SimpleRecoVtx.Y();
+    fSimpleVtxZ = SimpleRecoVtx.Z();
+    fSimpleStopVtxX = SimpleRecoStopVtx.X();
+    fSimpleStopVtxY = SimpleRecoStopVtx.Y();
+    fSimpleStopVtxZ = SimpleRecoStopVtx.Z();
+    fSimpleCosTheta = SimpleRecoCosTheta;
+    fSimplePt = SimpleRecoPt;
+    fSimpleFV = (SimpleRecoFV)? 1 : 0;
+    fSimpleMrdEnergyLoss = SimpleRecoMrdEnergyLoss;
+    fSimpleTrackLengthInMRD = SimpleRecoTrackLengthInMRD;
+    fSimpleTrackLengthInTank = SimpleRecoTrackLengthInTank;
+    fSimpleMRDStartX = SimpleRecoMRDStart.X();
+    fSimpleMRDStartY = SimpleRecoMRDStart.Y();
+    fSimpleMRDStartZ = SimpleRecoMRDStart.Z();
+    fSimpleMRDStopX = SimpleRecoMRDStop.X();
+    fSimpleMRDStopY = SimpleRecoMRDStop.Y();
+    fSimpleMRDStopZ = SimpleRecoMRDStop.Z();
+  }
+  return;
 }
 
 void PhaseIITreeMaker::FillRecoDebugInfo() {
