@@ -1,5 +1,5 @@
-#ifndef ReweightEventsGenie_H
-#define ReweightEventsGenie_H
+#ifndef ReweightFlux_H
+#define ReweightFlux_H
 
 #include <string>
 #include <iostream>
@@ -13,7 +13,7 @@
 #include <vector>
 
 #include "Tool.h"
-#include "GenieInfo.h"
+/*#include "GenieInfo.h"
 #include "CLHEP/Random/RandGaussQ.h"
 #include "CLHEP/Random/JamesRandom.h"
 #include "Framework/Conventions/KineVar.h"
@@ -32,9 +32,10 @@
 #include <Framework/Conventions/Constants.h>
 #include <Framework/GHEP/GHepParticle.h>
 #include <Framework/GHEP/GHepStatus.h>
+*/
 #include <TParticlePDG.h>
 
-#include "RwFramework/GSystSet.h"
+/*#include "RwFramework/GSystSet.h"
 #include "RwFramework/GSyst.h"
 #include "RwFramework/GReWeight.h"
 #include "RwCalculators/GReWeightNuXSecNCEL.h"
@@ -73,6 +74,7 @@
 #include <EventGen/EventRecord.h>
 #include <TParticlePDG.h>
 #include <Interaction/Interaction.h>
+*/
 #include "TChain.h"
 #include "TFile.h"
 #include "TTree.h"
@@ -83,33 +85,26 @@
 #include "MCEventWeight.h"
 #include "WeightManager.h"
 
-#define LOADED_GENIE 1
+
 
 /**
- * \class ReweightEventsGenie
+ * \class ReweightFlux
  *
-* Ported in parts from LoadGenieEvent
-* $Author: B.Richards
-* $Date: 2019/05/28 10:44:00
-* Contact: b.richards@qmul.ac.uk
+ * This is a blank template for a Tool used by the script to generate a new custom tool. Please fill out the description and author information.
 *
-* Updated
-* $Author: James Minock
-* $Date: 2023/02/09
-* Contact: jmm1018@physics.rutgers.edu
+* $Author: B.Richards $
+* $Date: 2019/05/28 10:44:00 $
+* Contact: b.richards@qmul.ac.uk
 */
-
-class ReweightEventsGenie: public Tool {
+class ReweightFlux: public Tool {
 
 
  public:
-  ReweightEventsGenie(); ///< Simple constructor
+
+  ReweightFlux(); ///< Simple constructor
   bool Initialise(std::string configfile,DataModel &data); ///< Initialise Function for setting up Tool resources. @param configfile The path and name of the dynamic configuration file to read in. @param data A reference to the transient data class used to pass information between Tools.
   bool Execute(); ///< Execute function used to perform Tool purpose.
   bool Finalise(); ///< Finalise function used to clean up resources.
-  bool valid_knob_name( const std::string& knob_name, genie::rew::GSyst_t& knob );
-  std::map< std::string, int > CheckForIncompatibleSystematics(const std::vector<genie::rew::GSyst_t>& knob_vec);
-  void SetupWeightCalculators(genie::rew::GReWeight& rw, const std::map<std::string, int>& modes_to_use);
 
   // verbosity levels: if 'verbosity' < this level, the message type will be logged.
   int verbosity;
@@ -120,53 +115,15 @@ class ReweightEventsGenie: public Tool {
   std::string logmessage;
   int get_ok;
 
+
  private:
 
   //Configuration variables
   std::string weight_options;
-  std::string fweight_options;
-  std::string sample;
-  std::string fGenieModuleWeight;
-  vector<string> weight_names;
   vector<string> fweight_names;
   vector<evwgh::fluxconfig> fconfig_funcs;
   evwgh::WeightManager wm;
 
-  vector<vector< genie::rew::GReWeight >> reweightVector;
-  int flx_run;
-  unsigned int flx_evt;
-
-  // function to load the branch addresses
-  void SetBranchAddresses();
-
-  // function to fill the info into the handy genieinfostruct
-  void GetGenieEntryInfo(genie::EventRecord* gevtRec, genie::Interaction* genieint,
-    GenieInfo& thegenieinfo, bool printneutrinoevent=false);
-
-  BoostStore* geniestore = nullptr;
-  int fluxstage;
-  std::string filedir, filepattern, outdir, outpattern, fluxdir, fluxfile;
-  bool loadwcsimsource;
-  TChain* flux = nullptr;
-  TFile* curf = nullptr;       // keep track of file changes
-  TFile* curflast = nullptr;
-  genie::NtpMCEventRecord* genieintx = nullptr; // = new genie::NtpMCEventRecord;
-  genie::NtpMCTreeHeader* geniehdr = nullptr;
-  // for fluxver 0 files
-  genie::flux::GNuMIFluxPassThroughInfo* gnumipassthruentry  = nullptr;
-  // for fluxver 1 files
-  genie::flux::GSimpleNtpEntry* gsimpleentry = nullptr;
-  genie::flux::GSimpleNtpAux* gsimpleauxinfo = nullptr;
-  genie::flux::GSimpleNtpNuMI* gsimplenumientry = nullptr;
-
-  // genie file variables
-  int fluxver;                         // 0 = old flux, 1 = new flux
-  std::string currentfilestring;
-  long local_entry=0;           // 
-  int tchainentrynum=0;         // 
-  int tchainentrynum_fw=0;
-  bool fromwcsim;
-  bool on_grid;
 };
 
 

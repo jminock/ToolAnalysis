@@ -1,5 +1,5 @@
-#ifndef _MCEVENTWEIGHT_H_
-#define _MCEVENTWEIGHT_H_
+#ifndef _MCFLUXEVENTWEIGHT_H_
+#define _MCFLUXEVENTWEIGHT_H_
 
 #include <vector>
 #include <string>
@@ -10,7 +10,7 @@ namespace evwgh {
     std::map<std::string, std::vector<double> > fWeight;
   };
 
-  struct xsecconfig{
+/*  struct xsecconfig{
     std::string title = "";
     std::string type = "";
     int random_seed = 0;
@@ -21,7 +21,7 @@ namespace evwgh {
     std::string mode = "";
     int number_of_multisims = 0;
   };
-
+*/
   struct fluxconfig{
     std::string title = "";
     std::string type = "";
@@ -57,7 +57,6 @@ namespace evwgh {
     double vy;
     double vz;
     int tptype;
-    //int tgptype;
     int ptype;
     int ntype;
     double nimpwt;
@@ -71,12 +70,6 @@ namespace evwgh {
     double ppdxdz;
     double ppdydz;
     double pppz;
-    //double muparpx;
-    //double muparpy;
-    //double muparpz;
-    //double mupare;
-    //double necm;
-    //int tgen;
   };
 }
-#endif //_MCEVENTWEIGHT_H_
+#endif //_MCFLUXEVENTWEIGHT_H_

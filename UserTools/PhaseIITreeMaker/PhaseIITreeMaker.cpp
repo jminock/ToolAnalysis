@@ -23,6 +23,7 @@ bool PhaseIITreeMaker::Initialise(std::string configfile, DataModel &data){
   m_variables.Get("MCTruth_fill", MCTruth_fill);
   m_variables.Get("MRDReco_fill", MRDReco_fill);
   m_variables.Get("TankReco_fill", TankReco_fill);
+  m_variables.Get("Reweight_fill", Reweight_fill);
   m_variables.Get("RecoDebug_fill", RecoDebug_fill);
   m_variables.Get("SimpleReco_fill", SimpleReco_fill);
   m_variables.Get("muonTruthRecoDiff_fill", muonTruthRecoDiff_fill);
@@ -367,6 +368,36 @@ bool PhaseIITreeMaker::Initialise(std::string configfile, DataModel &data){
       fPhaseIITrigTree->Branch("trueKMinus",&fTrueKMinus,"trueKMinus/I");
       fPhaseIITrigTree->Branch("trueKMinusCher",&fTrueKMinusCher,"trueKMinusCher/I"); 
     }
+
+    if (Reweight_fill){
+      fPhaseIITrigTree->Branch("XSecWeights",&fxsec_weights);
+      fPhaseIITrigTree->Branch("FluxWeights",&fflux_weights);
+      fPhaseIITrigTree->Branch("weight_All_UBGenie",&fAll);
+      fPhaseIITrigTree->Branch("weight_AxFFCCQEshape_UBGenie",&fAxFFCCQEshape);
+      fPhaseIITrigTree->Branch("weight_DecayAngMEC_UBGenie",&fDecayAngMEC);
+      fPhaseIITrigTree->Branch("weight_NormCCCOH_UBGenie",&fNormCCCOH);
+      fPhaseIITrigTree->Branch("weight_Norm_NCCOH_UBGenie",&fNorm_NCCOH);
+      fPhaseIITrigTree->Branch("weight_RPA_CCQE_UBGenie",&fRPA_CCQE);
+      fPhaseIITrigTree->Branch("weight_RootinoFix_UBGenie",&fRootinoFix);
+      fPhaseIITrigTree->Branch("weight_ThetaDelta2NRad_UBGenie",&fThetaDelta2NRad);
+      fPhaseIITrigTree->Branch("weight_Theta_Delta2Npi_UBGenie",&fTheta_Delta2Npi);
+      fPhaseIITrigTree->Branch("weight_TunedCentralValue_UBGenie",&fTunedCentralValue);
+      fPhaseIITrigTree->Branch("weight_VecFFCCQEshape_UBGenie",&fVecFFCCQEshape);
+      fPhaseIITrigTree->Branch("weight_XSecShape_CCMEC_UBGenie",&fXSecShape_CCMEC); 
+      fPhaseIITrigTree->Branch("weight_horncurrent_FluxUnisim",&fhorncurrent);
+      fPhaseIITrigTree->Branch("weight_expskin_FluxUnisim",&fexpskin);
+      fPhaseIITrigTree->Branch("weight_piplus_PrimaryHadronSWCentralSplineVariation",&fpiplus);
+      fPhaseIITrigTree->Branch("weight_piminus_PrimaryHadronSWCentralSplineVariation",&fpiminus);
+      fPhaseIITrigTree->Branch("weight_kplus_PrimaryHadronFeynmanScaling",&fkplus);
+      fPhaseIITrigTree->Branch("weight_kzero_PrimaryHadronSanfordWang",&fkzero);
+      fPhaseIITrigTree->Branch("weight_kminus_PrimaryHadronNormalization",&fkminus);
+      fPhaseIITrigTree->Branch("weight_pioninexsec_FluxUnisim",&fpioninexsec);
+      fPhaseIITrigTree->Branch("weight_pionqexsec_FluxUnisim",&fpionqexsec);
+      fPhaseIITrigTree->Branch("weight_piontotxsec_FluxUnisim",&fpiontotxsec);
+      fPhaseIITrigTree->Branch("weight_nucleoninexsec_FluxUnisim",&fnucleoninexsec);
+      fPhaseIITrigTree->Branch("weight_nucleonqexsec_FluxUnisim",&fnucleonqexsec);
+      fPhaseIITrigTree->Branch("weight_nucleontotxsec_FluxUnisim",&fnucleontotxsec);
+    } 
   
     // Reconstructed variables from each step in Muon Reco Analysis
     // Currently output when RecoDebug_fill = 1 in config 
@@ -809,6 +840,8 @@ bool PhaseIITreeMaker::Execute(){
 
     if(SimpleReco_fill) this->FillSimpleRecoInfo();
 
+    if(Reweight_fill) this->FillWeightInfo();
+
     bool got_reco = false;
     if(TankReco_fill) got_reco = this->FillTankRecoInfo();
 
@@ -944,6 +977,34 @@ void PhaseIITreeMaker::ResetVariables() {
     fTrueKPlusCher = -9999;
     fTrueKMinus = -9999;
     fTrueKMinusCher = -9999;
+  }
+
+  if (Reweight_fill){
+    fAll.clear();
+    fAxFFCCQEshape.clear();
+    fDecayAngMEC.clear();
+    fNormCCCOH.clear();
+    fNorm_NCCOH.clear();
+    fRPA_CCQE.clear();
+    fRootinoFix.clear();
+    fThetaDelta2NRad.clear();
+    fTheta_Delta2Npi.clear();
+    fTunedCentralValue.clear();
+    fVecFFCCQEshape.clear();
+    fXSecShape_CCMEC.clear();
+    fpiplus.clear();
+    fpiminus.clear();
+    fkplus.clear();
+    fkzero.clear();
+    fkminus.clear();
+    fhorncurrent.clear();
+    fpioninexsec.clear();
+    fpionqexsec.clear();
+    fpiontotxsec.clear();
+    fexpskin.clear();
+    fnucleoninexsec.clear();
+    fnucleonqexsec.clear();
+    fnucleontotxsec.clear();
   }
 
   if (RecoDebug_fill){ 
@@ -1856,6 +1917,38 @@ bool PhaseIITreeMaker::FillMCTruthInfo() {
   } // end if hasGenie
 
   return successful_load;
+}
+
+void PhaseIITreeMaker::FillWeightInfo() {
+  bool get_xsec_weights = m_data->Stores.at("ANNIEEvent")->Get("xsec_weights",fxsec_weights);
+  bool get_flux_weights = m_data->Stores.at("ANNIEEvent")->Get("flux_weights",fflux_weights);
+  if (get_xsec_weights && get_flux_weights){
+    fAll = fxsec_weights["All"];
+    fAxFFCCQEshape = fxsec_weights["AxFFCCQEshape"];
+    fDecayAngMEC = fxsec_weights["DecayAngMEC"];
+    fNormCCCOH = fxsec_weights["NormCCCOH"];
+    fNorm_NCCOH = fxsec_weights["Norm_NCCOH"];
+    fRPA_CCQE = fxsec_weights["RPA_CCQE"];
+    fRootinoFix = fxsec_weights["RootinoFix"];
+    fThetaDelta2NRad = fxsec_weights["ThetaDelta2NRad"];
+    fTheta_Delta2Npi = fxsec_weights["Theta_Delta2Npi"];
+    fTunedCentralValue = fxsec_weights["TunedCentralValue"];
+    fVecFFCCQEshape = fxsec_weights["VecFFCCQEshape"];
+    fXSecShape_CCMEC = fxsec_weights["XSecShape_CCMEC"];
+    fhorncurrent = fflux_weights["horncurrent_FluxUnisim"];
+    fexpskin = fflux_weights["expskin_FluxUnisim"];
+    fpiplus = fflux_weights["piplus_PrimaryHadronSWCentralSplineVariation"];
+    fpiminus = fflux_weights["piminus_PrimaryHadronSWCentralSplineVariation"];
+    fkplus = fflux_weights["kplus_PrimaryHadronFeynmanScaling"];
+    fkzero = fflux_weights["kzero_PrimaryHadronSanfordWang"];
+    fkminus = fflux_weights["kminus_PrimaryHadronNormalization"];
+    fpioninexsec = fflux_weights["pioninexsec_FluxUnisim"];
+    fpionqexsec = fflux_weights["pionqexsec_FluxUnisim"];
+    fpiontotxsec = fflux_weights["piontotxsec_FluxUnisim"];
+    fnucleoninexsec = fflux_weights["nucleoninexsec_FluxUnisim"];
+    fnucleonqexsec = fflux_weights["nucleonqexsec_FluxUnisim"];
+    fnucleontotxsec = fflux_weights["nucleontotxsec_FluxUnisim"];
+  }
 }
 
 void PhaseIITreeMaker::FillTruthRecoDiffInfo(bool successful_mcload,bool successful_recoload) {

@@ -22,6 +22,30 @@
 #include "TimeClass.h"
 #include "BeamStatus.h"
 
+#include "GenieInfo.h"
+#include "CLHEP/Random/RandGaussQ.h"
+#include "CLHEP/Random/JamesRandom.h"
+#include "Framework/Conventions/KineVar.h"
+#include "Framework/EventGen/EventRecord.h"
+#include "Framework/Interaction/Interaction.h"
+#include "Framework/Interaction/Kinematics.h"
+//#include "Framework/Messenger/Messenger.h"
+#include "Framework/Utils/AppInit.h"
+#include <Tools/Flux/GSimpleNtpFlux.h>
+#include <Tools/Flux/GNuMIFlux.h>
+#include <Framework/GHEP/GHepUtils.h>               // neut reaction codes
+#include <Framework/ParticleData/PDGLibrary.h>
+#include <Framework/ParticleData/PDGCodes.h>
+#include <Framework/Ntuple/NtpMCEventRecord.h>
+#include <Framework/Ntuple/NtpMCTreeHeader.h>
+#include <Framework/Conventions/Constants.h>
+#include <Framework/GHEP/GHepParticle.h>
+#include <Framework/GHEP/GHepStatus.h>
+#include <TParticlePDG.h>
+#include "TChain.h"
+#include "TVector3.h"
+#include "TLorentzVector.h"
+
 class PhaseIITreeMaker: public Tool {
 
 
@@ -42,6 +66,7 @@ class PhaseIITreeMaker: public Tool {
   void LoadAllMRDHits(bool IsData);
   void FillRecoDebugInfo();
   void FillSimpleRecoInfo();
+  void FillWeightInfo();
   void FillTruthRecoDiffInfo(bool got_mc, bool got_reco);
 
   /// \brief Summary of Reconstructed vertex
@@ -227,6 +252,35 @@ class PhaseIITreeMaker: public Tool {
   std::vector<double>* fTrueNeutCapGammaE = nullptr;
   int fTrueMultiRing;
 
+  //Weights
+  std::map<std::string, std::vector<double>> fxsec_weights;
+  std::map<std::string, std::vector<double>> fflux_weights;
+  std::vector<double> fAll;
+  std::vector<double> fAxFFCCQEshape;
+  std::vector<double> fDecayAngMEC;
+  std::vector<double> fNormCCCOH;
+  std::vector<double> fNorm_NCCOH;
+  std::vector<double> fRPA_CCQE;
+  std::vector<double> fRootinoFix;
+  std::vector<double> fThetaDelta2NRad;
+  std::vector<double> fTheta_Delta2Npi;
+  std::vector<double> fTunedCentralValue;
+  std::vector<double> fVecFFCCQEshape;
+  std::vector<double> fXSecShape_CCMEC;
+  std::vector<double> fpiplus;
+  std::vector<double> fpiminus;
+  std::vector<double> fkplus;
+  std::vector<double> fkzero;
+  std::vector<double> fkminus;
+  std::vector<double> fhorncurrent;
+  std::vector<double> fpioninexsec;
+  std::vector<double> fpionqexsec;
+  std::vector<double> fpiontotxsec;
+  std::vector<double> fexpskin;
+  std::vector<double> fnucleoninexsec;
+  std::vector<double> fnucleonqexsec;
+  std::vector<double> fnucleontotxsec;
+
   //Genie information for event
   double fTrueNeutrinoEnergy;
   double fTrueNeutrinoMomentum_X;
@@ -375,6 +429,7 @@ class PhaseIITreeMaker: public Tool {
   bool MCTruth_fill = 0; //Output the MC truth information
   bool TankReco_fill = 0;
   bool MRDReco_fill = 0;
+  bool Reweight_fill = 0;
   bool SimpleReco_fill = 0;
   bool RecoDebug_fill = 0; //Outputs results of Reconstruction at each step (best fits, FOMs, etc.)
   bool muonTruthRecoDiff_fill = 0; //Output difference in tmuonruth and reconstructed values

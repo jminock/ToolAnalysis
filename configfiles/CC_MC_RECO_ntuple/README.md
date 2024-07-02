@@ -26,3 +26,43 @@ Syntax matters. Follow example in ReweightEventsGenieConfig
 
 Note: Only one value is permitted per name and they are stored in a string stream and template cast back to the type given.
 
+************************
+#Summary
+************************
+
+Tools that load information from files
+-----------------------
+LoadGeometry
+LoadWCSim
+LoadWCSimLAPPD
+LoadGenieEvent - do not include this Tool if reweighting
+-----------------------
+
+Tools that perform reweighting (optional)
+-----------------------
+LoadReweightGenieEvent - this Tool REPLACES LoadGenieEvent
+ReweightFlux
+-----------------------
+
+Tools that process signals and truth information
+-----------------------
+MCParticleProperties
+MCRecoEventLoader
+TimeClustering
+FindMrdTracks
+ClusterFinder
+ClusterClassifiers
+DigitBuilder
+EventSelector
+-----------------------
+
+Tool performs reconstruction
+-----------------------
+SimpleReconstruction
+-----------------------
+
+Tool saves information to ntuple
+-----------------------
+PhaseIITreeMaker
+-----------------------
+
