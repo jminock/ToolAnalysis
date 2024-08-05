@@ -12,6 +12,10 @@ git remote add marc1uk https://github.com/marc1uk/ToolAnalysis.git;
 git fetch marc1uk;
 echo "checking out monitoring branch";
 git checkout --track marc1uk/monitoring_detached;
+# prune unused tools
+rm -rf ./UserTools/*
+# retrieve those we need
+git checkout -- .
 echo "setting up environment";
 . Setup.sh;
 echo "building";

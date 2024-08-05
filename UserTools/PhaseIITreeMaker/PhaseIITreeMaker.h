@@ -68,6 +68,7 @@ class PhaseIITreeMaker: public Tool {
   void FillSimpleRecoInfo();
   void FillWeightInfo();
   void FillTruthRecoDiffInfo(bool got_mc, bool got_reco);
+  void LoadDigitHits();
 
   /// \brief Summary of Reconstructed vertex
   void RecoSummary();
@@ -76,7 +77,8 @@ class PhaseIITreeMaker: public Tool {
   bool LoadTankClusterClassifiers(double cluster_time);
   void LoadAllTankHits(bool IsData);
   void LoadSiPMHits();
-
+  
+  
  private:
 
   //General variables
@@ -138,7 +140,7 @@ class PhaseIITreeMaker: public Tool {
   std::vector<double> fSiPMHitT;
   std::vector<double> fSiPMHitAmplitude;
   std::vector<double> fSiPMNum;
-  // Digits
+  // Digits (Hits)
   int fNHits = 0;
   std::vector<int> fIsFiltered;
   std::vector<double> fHitX;
@@ -151,6 +153,15 @@ class PhaseIITreeMaker: public Tool {
   std::vector<int> fHitDetID;
   std::vector<int> fHitChankey;
   std::vector<int> fHitChankeyMC;
+  
+  //Digits
+  int fNDigitsPMTs = 0;
+  int fNDigitsLAPPDs = 0;
+  std::vector<double> fdigitX;
+  std::vector<double> fdigitY;
+  std::vector<double> fdigitZ;
+  std::vector<double> fdigitT;
+  
 
   // MRD hit info 
   int fVetoHit;
@@ -434,6 +445,7 @@ class PhaseIITreeMaker: public Tool {
   bool RecoDebug_fill = 0; //Outputs results of Reconstruction at each step (best fits, FOMs, etc.)
   bool muonTruthRecoDiff_fill = 0; //Output difference in tmuonruth and reconstructed values
   bool SiPMPulseInfo_fill = 0;
+  bool Digit_fill = 0;
 };
 
 
