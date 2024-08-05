@@ -118,10 +118,9 @@ namespace evwgh {
     for (int iptyp=0;iptyp<4;iptyp++) {
       for (int intyp=0;intyp<4;intyp++) {
 	for (int ibin=0;ibin<200;ibin++) { //Grab events from ibin+1 
-
-	  fCV[iptyp][intyp][ibin]=(dynamic_cast<TH1F*> (fcv.Get(Form("h5%d%d",ptype[iptyp],ntype[intyp]))))->GetBinContent(ibin+1);
-	  fRWpos[iptyp][intyp][ibin]=(dynamic_cast<TH1F*> (frwpos.Get(Form("h5%d%d",ptype[iptyp],ntype[intyp]))))->GetBinContent(ibin+1);
-	  fRWneg[iptyp][intyp][ibin]=(dynamic_cast<TH1F*> (frwneg.Get(Form("h5%d%d",ptype[iptyp],ntype[intyp]))))->GetBinContent(ibin+1);
+	  fCV[iptyp][intyp][ibin]=(dynamic_cast<TH1D*> (fcv.Get(Form("h5%d%d",ptype[iptyp],ntype[intyp]))))->GetBinContent(ibin+1);
+	  fRWpos[iptyp][intyp][ibin]=(dynamic_cast<TH1D*> (frwpos.Get(Form("h5%d%d",ptype[iptyp],ntype[intyp]))))->GetBinContent(ibin+1);
+	  fRWneg[iptyp][intyp][ibin]=(dynamic_cast<TH1D*> (frwneg.Get(Form("h5%d%d",ptype[iptyp],ntype[intyp]))))->GetBinContent(ibin+1);
 
 	}// energy bin
       }//   type of neutrinos
@@ -136,7 +135,7 @@ namespace evwgh {
     CLHEP::HepRandomEngine* rng=new CLHEP::HepJamesRandom();
     rng->setSeed(long(fSeed),0);
     fGaussRandom = new CLHEP::RandGaussQ(rng,0,1);
-    
+
     //
     //   This part is important!!! You want to be sure to use the same random number throughout all the 
     //   events, otherwise you will be smearing over all the correlations. 

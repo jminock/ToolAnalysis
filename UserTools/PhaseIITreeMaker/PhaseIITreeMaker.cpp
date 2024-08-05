@@ -26,12 +26,14 @@ bool PhaseIITreeMaker::Initialise(std::string configfile, DataModel &data){
   m_variables.Get("Reweight_fill", Reweight_fill);
   m_variables.Get("RecoDebug_fill", RecoDebug_fill);
   m_variables.Get("SimpleReco_fill", SimpleReco_fill);
+  m_variables.Get("RingCounting_fill", RingCounting_fill);
   m_variables.Get("muonTruthRecoDiff_fill", muonTruthRecoDiff_fill);
 
   m_variables.Get("SiPMPulseInfo_fill",SiPMPulseInfo_fill);
   m_variables.Get("TankClusterProcessing",TankClusterProcessing);
   m_variables.Get("MRDClusterProcessing",MRDClusterProcessing);
   m_variables.Get("TriggerProcessing",TriggerProcessing);
+  m_variables.Get("MuonFitter_fill", MuonFitter_fill);    //juju
 
   std::string output_filename;
   m_variables.Get("OutputFile", output_filename);
@@ -102,6 +104,15 @@ bool PhaseIITreeMaker::Initialise(std::string configfile, DataModel &data){
       fPhaseIITankClusterTree->Branch("SiPMNum",&fSiPMNum);
       fPhaseIITankClusterTree->Branch("SiPM1NPulses",&fSiPM1NPulses,"SiPM1NPulses/I");
       fPhaseIITankClusterTree->Branch("SiPM2NPulses",&fSiPM2NPulses,"SiPM2NPulses/I");
+    }
+    //MuonFitter reco track length, vtx, energy; juju
+    if (MuonFitter_fill)
+    {
+      fPhaseIITankClusterTree->Branch("recoMuonVtxX", &fRecoMuonVtxX, "recoMuonVtxX/D");
+      fPhaseIITankClusterTree->Branch("recoMuonVtxY", &fRecoMuonVtxY, "recoMuonVtxY/D");
+      fPhaseIITankClusterTree->Branch("recoMuonVtxZ", &fRecoMuonVtxZ, "recoMuonVtxZ/D");
+      fPhaseIITankClusterTree->Branch("recoTankTrack", &fRecoTankTrack, "recoTankTrack/D");
+      fPhaseIITankClusterTree->Branch("recoMuonKE", &fRecoMuonKE, "recoMuonKE/D");
     }
   } 
 
@@ -286,7 +297,13 @@ bool PhaseIITreeMaker::Initialise(std::string configfile, DataModel &data){
       fPhaseIITrigTree->Branch("simpleRecoMRDStopZ",&fSimpleMRDStopZ,"simpleRecoMRDStopZ/D");
       fPhaseIITrigTree->Branch("simpleRecoTrackLengthInTank",&fSimpleTrackLengthInTank,"simpleRecoTrackLengthInTank/D");
     }
-  
+ 
+    //Ring Counting
+    if(RingCounting_fill){
+      fPhaseIITrigTree->Branch("RCSRPred",&fRCSRPred,"RCSRPred/D");
+      fPhaseIITrigTree->Branch("RCMRPred",&fRCMRPred,"RCMRPred/D");
+    }
+ 
     //MC truth information for muons
     //Output to tree when MCTruth_fill = 1 in config
     if (MCTruth_fill){
@@ -447,6 +464,38 @@ bool PhaseIITreeMaker::Initialise(std::string configfile, DataModel &data){
       fPhaseIITrigTree->Branch("deltaZenith",&fDeltaZenith,"deltaZenith/D");
       fPhaseIITrigTree->Branch("deltaAngle",&fDeltaAngle,"deltaAngle/D");
     } 
+
+    //MuonFitter reco track length, vtx, energy; juju
+    if (MuonFitter_fill)
+    {
+      fPhaseIITrigTree->Branch("julieRecoFlag", &fJulieRecoFlag, "julieRecoFlag/I");
+      fPhaseIITrigTree->Branch("julieRecoEnergy", &fJulieRecoEnergy, "julieRecoEnergy/D");
+      fPhaseIITrigTree->Branch("julieRecoVtxX", &fJulieRecoVtxX, "julieRecoVtxX/D");
+      fPhaseIITrigTree->Branch("julieRecoVtxY", &fJulieRecoVtxY, "julieRecoVtxY/D");
+      fPhaseIITrigTree->Branch("julieRecoVtxZ", &fJulieRecoVtxZ, "julieRecoVtxZ/D");
+      fPhaseIITrigTree->Branch("julieRecoStopVtxX", &fJulieRecoStopVtxX, "julieRecoStopVtxX/D");
+      fPhaseIITrigTree->Branch("julieRecoStopVtxY", &fJulieRecoStopVtxY, "julieRecoStopVtxY/D");
+      fPhaseIITrigTree->Branch("julieRecoStopVtxZ", &fJulieRecoStopVtxZ, "julieRecoStopVtxZ/D");
+      fPhaseIITrigTree->Branch("julieRecoCosTheta", &fJulieRecoCosTheta, "julieRecoCosTheta/D");
+      fPhaseIITrigTree->Branch("julieRecoPt", &fJulieRecoPt, "julieRecoPt/D");
+      fPhaseIITrigTree->Branch("julieRecoFV", &fJulieRecoFV, "julieRecoFV/I");
+      fPhaseIITrigTree->Branch("julieRecoMrdEnergyLoss", &fJulieRecoMrdEnergyLoss, "julieRecoMrdEnergyLoss/D");
+      fPhaseIITrigTree->Branch("julieRecoTrackLengthInMRD", &fJulieRecoTrackLengthInMRD, "julieRecoTrackLengthInMRD/D");
+      fPhaseIITrigTree->Branch("julieRecoMRDStartVtxX", &fJulieRecoMRDStartVtxX, "julieRecoMRDStartVtxX/D");
+      fPhaseIITrigTree->Branch("julieRecoMRDStartVtxY", &fJulieRecoMRDStartVtxY, "julieRecoMRDStartVtxY/D");
+      fPhaseIITrigTree->Branch("julieRecoMRDStartVtxZ", &fJulieRecoMRDStartVtxZ, "julieRecoMRDStartVtxZ/D");
+      fPhaseIITrigTree->Branch("julieRecoMRDStopVtxX", &fJulieRecoMRDStopVtxX, "julieRecoMRDStopVtxX/D");
+      fPhaseIITrigTree->Branch("julieRecoMRDStopVtxY", &fJulieRecoMRDStopVtxY, "julieRecoMRDStopVtxY/D");
+      fPhaseIITrigTree->Branch("julieRecoMRDStopVtxZ", &fJulieRecoMRDStopVtxZ, "julieRecoMRDStopVtxZ/D");
+      fPhaseIITrigTree->Branch("julieRecoNeutrinoEnergy", &fJulieRecoNeutrinoEnergy, "julieRecoNeutrinoEnergy/D");
+      fPhaseIITrigTree->Branch("julieRecoQ2", &fJulieRecoQ2, "julieRecoQ2/D");
+      fPhaseIITrigTree->Branch("recoMuonVtxX", &fRecoMuonVtxX, "recoMuonVtxX/D");
+      fPhaseIITrigTree->Branch("recoMuonVtxY", &fRecoMuonVtxY, "recoMuonVtxY/D");
+      fPhaseIITrigTree->Branch("recoMuonVtxZ", &fRecoMuonVtxZ, "recoMuonVtxZ/D");
+      fPhaseIITrigTree->Branch("recoTankTrack", &fRecoTankTrack, "recoTankTrack/D");
+      fPhaseIITrigTree->Branch("recoMuonKE", &fRecoMuonKE, "recoMuonKE/D");
+      fPhaseIITrigTree->Branch("numMrdLayers", &fNumMrdLayers, "numMrdLayers/I");
+    }
   }
   return true;
 }
@@ -619,6 +668,7 @@ bool PhaseIITreeMaker::Execute(){
       }
 
       if(SiPMPulseInfo_fill) this->LoadSiPMHits();
+      if (MuonFitter_fill) this->FillMuonFitterInfo();
       fPhaseIITankClusterTree->Fill();
       cluster_num += 1;
       if (isData){
@@ -840,6 +890,8 @@ bool PhaseIITreeMaker::Execute(){
 
     if(SimpleReco_fill) this->FillSimpleRecoInfo();
 
+    if(RingCounting_fill) this->FillRingCountingInfo();
+
     if(Reweight_fill) this->FillWeightInfo();
 
     bool got_reco = false;
@@ -853,6 +905,8 @@ bool PhaseIITreeMaker::Execute(){
 
     // FIll tree with all reconstruction information
     if (RecoDebug_fill) this->FillRecoDebugInfo();
+
+    if (MuonFitter_fill) this->FillMuonFitterInfo();
 
     fPhaseIITrigTree->Fill();
   }
@@ -1106,6 +1160,10 @@ void PhaseIITreeMaker::ResetVariables() {
     fSimpleMRDStopY = -9999;
     fSimpleMRDStopZ = -9999;
   }
+  if(RingCounting_fill){
+    fRCSRPred = -9999;
+    fRCMRPred = -9999;
+  }
   if(TankHitInfo_fill){
     fIsFiltered.clear();
     fHitX.clear();
@@ -1131,6 +1189,37 @@ void PhaseIITreeMaker::ResetVariables() {
     fDeltaAzimuth = -9999;
     fDeltaZenith = -9999;
     fDeltaAngle = -9999;
+  }
+
+  if (MuonFitter_fill)
+  {
+    fJulieRecoFlag = -9999;
+    fJulieRecoEnergy = -9999;
+    fJulieRecoVtxX = -9999;
+    fJulieRecoVtxY = -9999;
+    fJulieRecoVtxZ = -9999;
+    fJulieRecoStopVtxX = -9999;
+    fJulieRecoStopVtxY = -9999;
+    fJulieRecoStopVtxZ = -9999;
+    fJulieRecoCosTheta = -9999;
+    fJulieRecoPt = -9999;
+    fJulieRecoFV = -9999;
+    fJulieRecoMrdEnergyLoss = -9999;
+    fJulieRecoTrackLengthInMRD = -9999;
+    fJulieRecoMRDStartVtxX = -9999;
+    fJulieRecoMRDStartVtxY = -9999;
+    fJulieRecoMRDStartVtxZ = -9999;
+    fJulieRecoMRDStopVtxX = -9999;
+    fJulieRecoMRDStopVtxY = -9999;
+    fJulieRecoMRDStopVtxZ = -9999;
+    fJulieRecoNeutrinoEnergy = -9999;
+    fJulieRecoQ2 = -9999;
+    fRecoMuonVtxX = -9999;
+    fRecoMuonVtxY = -9999;
+    fRecoMuonVtxZ = -9999;
+    fRecoTankTrack = -9999;
+    fRecoMuonKE = -9999;
+    fNumMrdLayers = -9999;
   }
 }
 
@@ -1558,10 +1647,92 @@ bool PhaseIITreeMaker::FillTankRecoInfo() {
   return got_reco_info;
 }
 
+void PhaseIITreeMaker::FillRingCountingInfo() {
+  auto* reco_event = m_data->Stores["RecoEvent"];
+  if (!reco_event) {
+    Log("Error: The PhaseIITreeMaker tool could not find the RecoEvent Store", v_error, verbosity);
+  }
+  double RCSRPred;
+  double RCMRPred;
+  auto get_sr = m_data->Stores["RecoEvent"]->Get("RingCountingSRPrediction",RCSRPred);
+  auto get_mr = m_data->Stores["RecoEvent"]->Get("RingCountingMRPrediction",RCMRPred);
+
+  if(get_sr && get_mr){
+    fRCSRPred = RCSRPred;
+    fRCMRPred = RCMRPred;
+  }
+  else Log("Error: PhaseIITreeMaker tool could not find RingCountingPrediction from RecoEvent Store", v_error, verbosity); 
+  return;
+}
+
+void PhaseIITreeMaker::FillMuonFitterInfo() {
+  auto* reco_event = m_data->Stores["RecoEvent"];
+  if (!reco_event) {
+    Log("Error: The PhaseIITreeMaker tool could not find the RecoEvent Store", v_error, verbosity);
+  }
+  int JulieRecoFlag;
+  bool JulieRecoFV;
+  double JulieRecoEnergy, JulieRecoCosTheta, JulieRecoPt, JulieRecoMrdEnergyLoss, JulieRecoTrackLengthInMRD;
+  double JulieRecoTrackLengthInTank, JulieRecoNeutrinoEnergy, JulieRecoQ2;
+  Position JulieRecoVtx;
+  Position JulieRecoStopVtx;
+  Position JulieRecoMRDStart;
+  Position JulieRecoMRDStop;
+  auto get_flag = m_data->Stores["RecoEvent"]->Get("JulieRecoFlag",JulieRecoFlag);
+  auto get_energy = m_data->Stores["RecoEvent"]->Get("JulieRecoEnergy",JulieRecoEnergy);
+  auto get_vtx = m_data->Stores["RecoEvent"]->Get("JulieRecoVtx",JulieRecoVtx);
+  auto get_stopvtx = m_data->Stores["RecoEvent"]->Get("JulieRecoStopVtx",JulieRecoStopVtx);
+  auto get_cos = m_data->Stores["RecoEvent"]->Get("JulieRecoCosTheta",JulieRecoCosTheta);
+  auto get_pt = m_data->Stores["RecoEvent"]->Get("JulieRecoPt",JulieRecoPt);
+  auto get_fv = m_data->Stores["RecoEvent"]->Get("JulieRecoFV",JulieRecoFV);
+  auto get_mrdenergy = m_data->Stores["RecoEvent"]->Get("JulieRecoMrdEnergyLoss",JulieRecoMrdEnergyLoss);
+  auto get_mrdtrack = m_data->Stores["RecoEvent"]->Get("JulieRecoTrackLengthInMRD",JulieRecoTrackLengthInMRD);
+//  auto get_tanktrack = m_data->Stores["RecoEvent"]->Get("JulieRecoTrackLengthInTank",JulieRecoTrackLengthInTank);
+  auto get_mrdstart = m_data->Stores["RecoEvent"]->Get("JulieRecoMRDStart",JulieRecoMRDStart);
+  auto get_mrdstop = m_data->Stores["RecoEvent"]->Get("JulieRecoMRDStop",JulieRecoMRDStop); 
+  auto get_nuE = m_data->Stores["RecoEvent"]->Get("JulieRecoNeutrinoEnergy",JulieRecoNeutrinoEnergy);
+  auto get_Q2 = m_data->Stores["RecoEvent"]->Get("JulieRecoQ2",JulieRecoQ2);
+
+  if(get_flag && get_energy && get_vtx && get_stopvtx && get_cos && get_pt && get_fv && get_mrdenergy && get_mrdtrack && get_mrdstart && get_mrdstop && get_nuE && get_Q2){
+    fJulieRecoFlag = JulieRecoFlag;
+    fJulieRecoEnergy = JulieRecoEnergy;
+    fJulieRecoVtxX = JulieRecoVtx.X();
+    fJulieRecoVtxY = JulieRecoVtx.Y();
+    fJulieRecoVtxZ = JulieRecoVtx.Z();
+    fJulieRecoStopVtxX = JulieRecoStopVtx.X();
+    fJulieRecoStopVtxY = JulieRecoStopVtx.Y();
+    fJulieRecoStopVtxZ = JulieRecoStopVtx.Z();
+    fJulieRecoCosTheta = JulieRecoCosTheta;
+    fJulieRecoPt = JulieRecoPt;
+    fJulieRecoFV = (JulieRecoFV)? 1 : 0;
+    fJulieRecoMrdEnergyLoss = JulieRecoMrdEnergyLoss;
+    fJulieRecoTrackLengthInMRD = JulieRecoTrackLengthInMRD;
+//    fJulieTrackLengthInTank = JulieRecoTrackLengthInTank;
+    fJulieRecoMRDStartVtxX = JulieRecoMRDStart.X();
+    fJulieRecoMRDStartVtxY = JulieRecoMRDStart.Y();
+    fJulieRecoMRDStartVtxZ = JulieRecoMRDStart.Z();
+    fJulieRecoMRDStopVtxX = JulieRecoMRDStop.X();
+    fJulieRecoMRDStopVtxY = JulieRecoMRDStop.Y();
+    fJulieRecoMRDStopVtxZ = JulieRecoMRDStop.Z();
+    fJulieRecoNeutrinoEnergy = JulieRecoNeutrinoEnergy;
+    fJulieRecoQ2 = JulieRecoQ2;
+  }
+
+  Position tmp_vtx(-999,-999,-999);
+  m_data->CStore.Get("FittedMuonVertex", tmp_vtx);
+  fRecoMuonVtxX = tmp_vtx.X();
+  fRecoMuonVtxY = tmp_vtx.Y();
+  fRecoMuonVtxZ = tmp_vtx.Z();
+  m_data->CStore.Get("FittedTrackLengthInWater", fRecoTankTrack);
+  m_data->CStore.Get("RecoMuonKE", fRecoMuonKE);
+  m_data->CStore.Get("NLyers", fNumMrdLayers);
+  return;
+}
+
 void PhaseIITreeMaker::FillSimpleRecoInfo() {
   auto* reco_event = m_data->Stores["RecoEvent"];
   if (!reco_event) {
-    Log("Error: The PhaseITreeMaker tool could not find the RecoEvent Store", v_error, verbosity);
+    Log("Error: The PhaseIITreeMaker tool could not find the RecoEvent Store", v_error, verbosity);
   }
   int SimpleRecoFlag;
   bool SimpleRecoFV;
@@ -1706,9 +1877,9 @@ bool PhaseIITreeMaker::FillMCTruthInfo() {
   std::vector<std::vector<double>> mcneutgammas = it->second;
   for (int i_cap=0; i_cap < (int) mcneutgammas.size(); i_cap++){
     std::vector<double> capgammas = mcneutgammas.at(i_cap);
-    for (int i_gamma=0; i_gamma < (int) capgammas.size(); i_gamma++){
-      std::cout <<"gamma # "<<i_gamma<<", energy: "<<capgammas.at(i_gamma)<<std::endl;
-    }
+//    for (int i_gamma=0; i_gamma < (int) capgammas.size(); i_gamma++){
+//      std::cout <<"gamma # "<<i_gamma<<", energy: "<<capgammas.at(i_gamma)<<std::endl;
+//    }
   }
   }
 
@@ -1821,7 +1992,7 @@ bool PhaseIITreeMaker::FillMCTruthInfo() {
     std::cout <<"cap_energies size: "<<cap_energies.size()<<std::endl;
     for (int i_cap = 0; i_cap < (int) cap_energies.size(); i_cap++){
       for (int i_gamma=0; i_gamma < cap_energies.at(i_cap).size(); i_gamma++){
-        std::cout <<"gamma energy: "<<cap_energies.at(i_cap).at(i_gamma)<<std::endl;
+//        std::cout <<"gamma energy: "<<cap_energies.at(i_cap).at(i_gamma)<<std::endl;
         fTrueNeutCapGammaE->push_back(cap_energies.at(i_cap).at(i_gamma));
       }
     }
@@ -1868,10 +2039,10 @@ bool PhaseIITreeMaker::FillMCTruthInfo() {
     bool get_fsl_mass = m_data->Stores["GenieInfo"]->Get("FSLeptonMass",TrueFSLeptonMass);
     bool get_fsl_pdg = m_data->Stores["GenieInfo"]->Get("FSLeptonPdg",TrueFSLeptonPdg);
     bool get_fsl_energy = m_data->Stores["GenieInfo"]->Get("FSLeptonEnergy",TrueFSLeptonEnergy);
-    std::cout <<"get_neutrino_energy: "<<get_neutrino_energy<<"get_neutrino_vtxx: "<<get_neutrino_vtxx<<"get_neutrino_vtxy: "<<get_neutrino_vtxy<<"get_neutrino_vtxz: "<<get_neutrino_vtxz<<"get_neutrino_time: "<<get_neutrino_vtxt<<std::endl;
-    std::cout <<"get_q2: "<<get_q2<<", get_cc: "<<get_cc<<", get_qel: "<<get_qel<<", get_res: "<<get_res<<", get_dis: "<<get_dis<<", get_coh: "<<get_coh<<", get_mec: "<<get_mec<<std::endl;
-    std::cout <<"get_n: "<<get_n<<", get_p: "<<get_p<<", get_pi0: "<<get_pi0<<", get_piplus: "<<get_piplus<<", get_pipluscher: "<<get_pipluscher<<", get_piminus: "<<get_piminus<<", get_piminuscher: "<<get_piminuscher<<", get_kplus: "<<get_kplus<<", get_kpluscher: "<<get_kpluscher<<", get_kminus: "<<get_kminus<<", get_kminuscher: "<<get_kminuscher<<std::endl;
-    std::cout <<"get_fsl_vtx: "<<get_fsl_vtx<<", get_fsl_momentum: "<<get_fsl_momentum<<", get_fsl_time: "<<get_fsl_time<<", get_fsl_mass: "<<get_fsl_mass<<", get_fsl_pdg: "<<get_fsl_pdg<<", get_fsl_energy: "<<get_fsl_energy<<std::endl;
+//    std::cout <<"get_neutrino_energy: "<<get_neutrino_energy<<"get_neutrino_vtxx: "<<get_neutrino_vtxx<<"get_neutrino_vtxy: "<<get_neutrino_vtxy<<"get_neutrino_vtxz: "<<get_neutrino_vtxz<<"get_neutrino_time: "<<get_neutrino_vtxt<<std::endl;
+//    std::cout <<"get_q2: "<<get_q2<<", get_cc: "<<get_cc<<", get_qel: "<<get_qel<<", get_res: "<<get_res<<", get_dis: "<<get_dis<<", get_coh: "<<get_coh<<", get_mec: "<<get_mec<<std::endl;
+//    std::cout <<"get_n: "<<get_n<<", get_p: "<<get_p<<", get_pi0: "<<get_pi0<<", get_piplus: "<<get_piplus<<", get_pipluscher: "<<get_pipluscher<<", get_piminus: "<<get_piminus<<", get_piminuscher: "<<get_piminuscher<<", get_kplus: "<<get_kplus<<", get_kpluscher: "<<get_kpluscher<<", get_kminus: "<<get_kminus<<", get_kminuscher: "<<get_kminuscher<<std::endl;
+//    std::cout <<"get_fsl_vtx: "<<get_fsl_vtx<<", get_fsl_momentum: "<<get_fsl_momentum<<", get_fsl_time: "<<get_fsl_time<<", get_fsl_mass: "<<get_fsl_mass<<", get_fsl_pdg: "<<get_fsl_pdg<<", get_fsl_energy: "<<get_fsl_energy<<std::endl;
     if (get_neutrino_energy && get_neutrino_mom && get_neutrino_vtxx && get_neutrino_vtxy && get_neutrino_vtxz && get_neutrino_vtxt && get_q2 && get_cc && get_nc && get_qel && get_res && get_dis && get_coh && get_mec && get_n && get_p && get_pi0 && get_piplus && get_pipluscher && get_piminus && get_piminuscher && get_kplus && get_kpluscher && get_kminus && get_kminuscher && get_fsl_vtx && get_fsl_momentum && get_fsl_time && get_fsl_mass && get_fsl_pdg && get_fsl_energy ){
       fTrueNeutrinoEnergy = TrueNeutrinoEnergy;
       fTrueNeutrinoMomentum_X = TrueNeutrinoMomentum.X();

@@ -166,7 +166,7 @@ bool ReweightFlux::Initialise(std::string configfile, DataModel &data){
   }
   //put in Weight Manager
   wm.Configure(fconfig_funcs);
- 
+
   return true;
 }
 

@@ -56,7 +56,6 @@ bool CNNImage::Initialise(std::string configfile, DataModel &data){
   } else { //for top & bottom PMTs, include 2 extra rows of PMTs at top and at the bottom
     npmtsY = 10;
   }
-
   //Output configuration
   Log("CNNImage tool: Data mode: " + data_mode + " [Normal/Charge-Weighted]", v_message, verbosity);
   Log("CNNImage tool: Save mode: " + save_mode + " [Geometric/PMT-wise]", v_message, verbosity);
@@ -88,7 +87,7 @@ bool CNNImage::Initialise(std::string configfile, DataModel &data){
   max_y = -100.;
   min_y = 100.;
 
-  //---------------------------------------------------------------
+ //---------------------------------------------------------------
 
   GetPMTPositions(Detectors);
   OrderPMTPositions();
@@ -185,6 +184,7 @@ bool CNNImage::Execute(){
   //---------------------------------------------------------------
   //-------------------Get ANNIEEvent objects----------------------
   //---------------------------------------------------------------
+
 
   bool get_ok=false;
   if (!isData){

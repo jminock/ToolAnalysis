@@ -38,7 +38,6 @@ class CNNImage: public Tool {
   void ConvertPositionTo2D(Position xyz_pos, double &x, double &y); ///<Convert 3D position into 2D rolled up coordinates
   void ConvertPositionTo2D_Top(Position xyz_pos, double &x, double &y); ///<Convert 3D position into 2D rolled up coordinates (top PMTs only)
   void ConvertPositionTo2D_Bottom(Position xyz_pos, double &x, double &y); ///<Convert 3D position into 2D rolled up coordinates (bottom PMTs only)
-
   void GetPMTPositions(std::map<std::string, std::map<unsigned long, Detector*> >* Detectors);
   void OrderPMTPositions();
 

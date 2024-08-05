@@ -66,6 +66,8 @@ class PhaseIITreeMaker: public Tool {
   void LoadAllMRDHits(bool IsData);
   void FillRecoDebugInfo();
   void FillSimpleRecoInfo();
+  void FillMuonFitterInfo();
+  void FillRingCountingInfo();
   void FillWeightInfo();
   void FillTruthRecoDiffInfo(bool got_mc, bool got_reco);
 
@@ -383,7 +385,11 @@ class PhaseIITreeMaker: public Tool {
   double fSimpleMRDStopX;
   double fSimpleMRDStopY;
   double fSimpleMRDStopZ;
- 
+
+  // Ring Counting
+  double fRCSRPred;
+  double fRCMRPred;
+
   // Extended Vertex
   double fRecoVtxX;
   double fRecoVtxY;
@@ -409,6 +415,34 @@ class PhaseIITreeMaker: public Tool {
   double fDeltaZenith;  
   double fDeltaAngle;
   
+  // MuonFitter vertex
+  int fJulieRecoFlag;
+  double fJulieRecoEnergy;
+  double fJulieRecoVtxX;
+  double fJulieRecoVtxY;
+  double fJulieRecoVtxZ;
+  double fJulieRecoStopVtxX;
+  double fJulieRecoStopVtxY;
+  double fJulieRecoStopVtxZ;
+  double fJulieRecoCosTheta;
+  double fJulieRecoPt;
+  int fJulieRecoFV;
+  double fJulieRecoMrdEnergyLoss;
+  double fJulieRecoTrackLengthInMRD;
+  double fJulieRecoMRDStartVtxX;
+  double fJulieRecoMRDStartVtxY;
+  double fJulieRecoMRDStartVtxZ; 
+  double fJulieRecoMRDStopVtxX;
+  double fJulieRecoMRDStopVtxY;
+  double fJulieRecoMRDStopVtxZ; 
+  double fJulieRecoNeutrinoEnergy;
+  double fJulieRecoQ2;
+  double fRecoMuonVtxX;
+  double fRecoMuonVtxY;
+  double fRecoMuonVtxZ;
+  double fRecoTankTrack;
+  double fRecoMuonKE;
+  int fNumMrdLayers;
 
   /// \brief Integer that determines the level of logging to perform
   int verbosity = 0;
@@ -431,9 +465,11 @@ class PhaseIITreeMaker: public Tool {
   bool MRDReco_fill = 0;
   bool Reweight_fill = 0;
   bool SimpleReco_fill = 0;
+  bool RingCounting_fill = 0;
   bool RecoDebug_fill = 0; //Outputs results of Reconstruction at each step (best fits, FOMs, etc.)
   bool muonTruthRecoDiff_fill = 0; //Output difference in tmuonruth and reconstructed values
   bool SiPMPulseInfo_fill = 0;
+  bool MuonFitter_fill = 0; //juju
 };
 
 

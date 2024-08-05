@@ -10,4 +10,3 @@ IsData 0
 #OutputROOTFile TimeClustering_MRDTest28_cluster40ns
 OutputROOTFile STEC_TimeClusteringOut
 MapChankey_WCSimID ./configfiles/SimpleTankEnergyCalibrator/MRD_Chankey_WCSimID.dat
-

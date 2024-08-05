@@ -1,4 +1,4 @@
-verbose 0
+verbose 1
 
 IsData 0
 HasGenie 1
@@ -12,7 +12,9 @@ fillCleanEventsOnly 0
 MRDReco_fill 1
 TankReco_fill 1
 SimpleReco_fill 1
-Reweight_fill 1
+RingCounting_fill 1
+Reweight_fill 0
+MuonFitter_fill 1
 
-OutputFile PhaseIITree_0.0.0.root
+OutputFile PhaseIITree_0.MF.test.root
 #NumEventsWritten 2000

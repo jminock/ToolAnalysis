@@ -51,7 +51,6 @@ namespace evwgh {
     }
 
     _configured = true;
-    std::cout << "Called" << std::endl;
 
     return fWeightCalcMap.size();
   }

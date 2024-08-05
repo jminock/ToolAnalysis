@@ -17,7 +17,6 @@ class TestPython(Tool):
         return 1
     
     def Execute(self):
-        self.m_log.Log(__file__+" Executing", self.v_debug, self.m_verbosity)
         
         # set python variables
         somefloat = 3.334
@@ -57,9 +56,7 @@ class TestPython(Tool):
         return 1
     
     def Finalise(self):
-        
-        self.m_log.Log(__file__+" Finalising", self.v_debug, self.m_verbosity)
-        
+               
         # when c++ functions accept arguments by reference or pointer we need
         # to wrap them in a class. If the argument type is already a class
         # we don't need to do anything, but basic types need a ctype wrapper

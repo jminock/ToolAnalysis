@@ -12,4 +12,3 @@ IncludeTopBottom 1
 DetectorConf ANNIEp2v7		#specify the detector version used in simulation
 useLAPPDs 0
 WriteToFile 1
-

@@ -78,12 +78,10 @@ SaveMode Static             #options: Static / Geometric
 DimensionX 16               #choose something suitable (32/64/...) Relevant only for geometric mode
 DimensionY 10               #choose something suitable (32/64/...)
 OutputFile your_base_name   #base name of output files, if WriteToFile == 1
-
 DimensionLAPPD 5            #Size of the LAPPD pannal 
 IncludeTopBottom 1          #Whether top and bottom should be included
                             #IncludeTopBottom is only relevant for geometric mode
 DetectorConf ANNIEp2v7
 useLAPPDs 0                 
 WriteToFile 0              
-
 ```
