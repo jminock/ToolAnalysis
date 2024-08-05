@@ -28,10 +28,20 @@ are found at the top of the RingCounting.py file.
 ---
 Exemplary configuration:
 ```
-load_from_file 0                                                # If set to 1, load CNNImage formatted csv files
-files_to_load configfiles/RingCounting/files_to_load.txt        # txt file containing files to load in case load_from_file == 1
-version 1_0_0                                                   # Model version
-model_path /annie/app/users/dschmid/RingCountingStore/models/   # Model path
-pmt_mask november_22                                            # PMT mask (zeroed out)
-save_to RC_output.csv                                           # if load_from_file == 1, save predictions as csv
+PythonScript RingCounting
+
+InitialiseFunction Initialise
+ExecuteFunction Execute
+FinaliseFunction Finalise
+
+verbose 1
+
+load_from_csv 0                                                     # If set to 1, load CNNImage-formatted csv files
+save_to_csv 0                                                       # If set to 1, save predictions to csv files
+save_to RC_output.csv                                               # Prediction output file, used if load_from_csv and 
+                                                                    #  save_to_csv are both true.
+files_to_load configfiles/RingCounting/files_to_load.txt            # txt file containing files to load in case load_from_file == 1
+version 1_0_0                                                       # Model version
+model_path /exp/annie/app/users/dschmid/RingCountingStore/models/   # Model path
+pmt_mask november_22                                                # Masked PMTs (name of hard-coded set of PMTs to ignore)
 ```

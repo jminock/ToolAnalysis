@@ -33,7 +33,10 @@ bool PhaseIITreeMaker::Initialise(std::string configfile, DataModel &data){
   m_variables.Get("TankClusterProcessing",TankClusterProcessing);
   m_variables.Get("MRDClusterProcessing",MRDClusterProcessing);
   m_variables.Get("TriggerProcessing",TriggerProcessing);
+  
+  m_variables.Get("Digit_fill",Digit_fill);
   m_variables.Get("MuonFitter_fill", MuonFitter_fill);    //juju
+
 
   std::string output_filename;
   m_variables.Get("OutputFile", output_filename);
@@ -169,6 +172,7 @@ bool PhaseIITreeMaker::Initialise(std::string configfile, DataModel &data){
       fPhaseIIMRDClusterTree->Branch("MRDStop",&fMRDStop);
       fPhaseIIMRDClusterTree->Branch("MRDThrough",&fMRDThrough);
     }
+
   }
 
   if(TriggerProcessing){
@@ -177,6 +181,19 @@ bool PhaseIITreeMaker::Initialise(std::string configfile, DataModel &data){
     fPhaseIITrigTree->Branch("subrunNumber",&fSubrunNumber,"subrunNumber/I");
     fPhaseIITrigTree->Branch("runType",&fRunType,"runType/I");
     fPhaseIITrigTree->Branch("startTime",&fStartTime_Tree,"startTime/l");
+    
+    
+ //DIGITS   
+  if(Digit_fill){
+      fPhaseIITrigTree->Branch("digitX",&fdigitX);
+      fPhaseIITrigTree->Branch("digitY",&fdigitY);
+      fPhaseIITrigTree->Branch("digitZ",&fdigitZ);
+      fPhaseIITrigTree->Branch("digitT",&fdigitT);
+      fPhaseIITrigTree->Branch("NDigitsPMTs",&fNDigitsPMTs);
+      fPhaseIITrigTree->Branch("NDigitsLAPPDs",&fNDigitsLAPPDs);
+      
+    }
+ //DIGITS   
 
     //Some lower level information to save
     fPhaseIITrigTree->Branch("eventNumber",&fEventNumber,"eventNumber/I");
@@ -526,8 +543,6 @@ bool PhaseIITreeMaker::Execute(){
     }
   }
 
-
-
   if(TankClusterProcessing){
     Log("PhaseIITreeMaker Tool: Beginning Tank cluster processing",v_debug,verbosity);
     //bool get_clusters = m_data->Stores.at("ANNIEEvent")->Get("ClusterMap",m_all_clusters);
@@ -680,7 +695,7 @@ bool PhaseIITreeMaker::Execute(){
       } 
     }
   }
-
+  
   if(MRDClusterProcessing){
     Log("PhaseIITreeMaker Tool: Beginning MRD cluster processing",v_debug,verbosity);
 
@@ -876,7 +891,36 @@ bool PhaseIITreeMaker::Execute(){
     if(SiPMPulseInfo_fill) this->LoadSiPMHits();
  
     if(MRDHitInfo_fill) this->LoadAllMRDHits(isData);
-
+    
+    //DIGITS
+    if(Digit_fill) this->LoadDigitHits();
+    //DIGITS
+    /*/
+    if(Digit_fill){
+       // get digits from RecoDigit store
+       std::vector<RecoDigit>* digitList;
+       auto get_digits=m_data->Stores.at("RecoEvent")->Get("RecoDigit", digitList);
+       if(not get_digits){
+         Log("PhaseIITreeMaker Tool: Failed to retrieve the RecoDigit from RecoEvent Store!",v_error,verbosity);
+         return false;
+       }
+       // Extract the PMT & LAPPD digit information
+       // ===============================
+       int totalPMTs =0; // number of digits from PMT hits in the event
+       int totalLAPPDs = 0; // number of digits from LAPPD hits in the event
+       //loop through all digits
+       for(RecoDigit &adigit : *digitList){
+	   digitX.push_back(adigit.GetPosition().X());
+	   digitY.push_back(adigit.GetPosition().Y());
+	   digitZ.push_back(adigit.GetPosition().Z());
+	   digitT.push_back(adigit.GetCalTime());
+	   if(adigit.GetDigitType()==0){totalPMTs+=1;} //when the digit type is zero we have a PMT digit
+	   else{totalLAPPDs+=1;}// when it is 1 we have LAPPD
+       }
+       Log("PhaseIITreeMaker Tool: Got "+to_string(totalPMTs)+" PMT digits; "+to_string(digitT.size()) +" total digits so far",v_debug,verbosity);
+       Log("PhaseIITreeMaker Tool: Got "+to_string(totalLAPPDs)+" LAPPD digits; "+to_string(digitT.size()) +" total digits",v_debug,verbosity);
+    }
+/*/
 
     if(MRDReco_fill){
       fNumClusterTracks=0;
@@ -931,6 +975,8 @@ void PhaseIITreeMaker::ResetVariables() {
   fEventNumber = -9999;
   fEventTimeTank_Tree = 9999;
   fNHits = -9999;
+  fNDigitsPMTs = -9999;
+  fNDigitsLAPPDs = -9999;
   fVetoHit = -9999;
   fEventTimeMRD_Tree = 9999;
   fTriggerword = -1;
@@ -1221,6 +1267,15 @@ void PhaseIITreeMaker::ResetVariables() {
     fRecoMuonKE = -9999;
     fNumMrdLayers = -9999;
   }
+  
+  //DIGITS
+  if (Digit_fill){
+    fdigitX.clear();
+    fdigitY.clear();
+    fdigitZ.clear();
+    fdigitT.clear();
+    }
+   //DIGITS 
 }
 
 bool PhaseIITreeMaker::LoadTankClusterClassifiers(double cluster_time){
@@ -1445,6 +1500,36 @@ void PhaseIITreeMaker::LoadAllMRDHits(bool IsData){
   }
   return;
 }
+
+
+//DIGITS  
+void PhaseIITreeMaker::LoadDigitHits(){
+    // get digits from RecoDigit store
+       std::vector<RecoDigit>* digitList;
+       bool get_digits=false;
+       get_digits=m_data->Stores.at("RecoEvent")->Get("RecoDigit", digitList);
+       if(!get_digits){
+         Log("PhaseIITreeMaker Tool: Failed to retrieve the RecoDigit from RecoEvent Store!",v_error,verbosity);
+         return;
+          }
+   // Extract the PMT & LAPPD digit information
+   // ===============================
+        int totalPMTs =0; // number of digits from PMT hits in the event
+        int totalLAPPDs = 0; // number of digits from LAPPD hits in the event
+  //loop through all digits
+        for(RecoDigit &adigit : *digitList){
+	   fdigitX.push_back(adigit.GetPosition().X());
+	   fdigitY.push_back(adigit.GetPosition().Y());
+	   fdigitZ.push_back(adigit.GetPosition().Z());
+	   fdigitT.push_back(adigit.GetCalTime());
+	   if(adigit.GetDigitType()==0){fNDigitsPMTs+=1;} //when the digit type is zero we have a PMT digit
+	   else{fNDigitsLAPPDs+=1;}// when it is 1 we have LAPPD
+           }
+        Log("PhaseIITreeMaker Tool: Got "+to_string(totalPMTs)+" PMT digits; "+to_string(fdigitT.size()) +" total digits so far",v_debug,verbosity);
+        Log("PhaseIITreeMaker Tool: Got "+to_string(totalLAPPDs)+" LAPPD digits; "+to_string(fdigitT.size()) +" total digits",v_debug,verbosity);
+   return;
+}       
+//DIGITS
 
 int PhaseIITreeMaker::LoadMRDTrackReco(int SubEventID) {
   //Check for valid track criteria
