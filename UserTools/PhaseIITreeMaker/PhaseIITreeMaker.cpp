@@ -1782,11 +1782,11 @@ void PhaseIITreeMaker::FillMuonFitterInfo() {
     fJulieRecoFlag = JulieRecoFlag;
     fJulieRecoEnergy = JulieRecoEnergy;
     fJulieRecoVtxX = JulieRecoVtx.X();
-    fJulieRecoVtxY = JulieRecoVtx.Y();
-    fJulieRecoVtxZ = JulieRecoVtx.Z();
+    fJulieRecoVtxY = JulieRecoVtx.Y()-14.46;
+    fJulieRecoVtxZ = JulieRecoVtx.Z()+168.1;
     fJulieRecoStopVtxX = JulieRecoStopVtx.X();
-    fJulieRecoStopVtxY = JulieRecoStopVtx.Y();
-    fJulieRecoStopVtxZ = JulieRecoStopVtx.Z();
+    fJulieRecoStopVtxY = JulieRecoStopVtx.Y()-14.46;
+    fJulieRecoStopVtxZ = JulieRecoStopVtx.Z()+168.1;
     fJulieRecoCosTheta = JulieRecoCosTheta;
     fJulieRecoPt = JulieRecoPt;
     fJulieRecoFV = (JulieRecoFV)? 1 : 0;
@@ -1794,11 +1794,11 @@ void PhaseIITreeMaker::FillMuonFitterInfo() {
     fJulieRecoTrackLengthInMRD = JulieRecoTrackLengthInMRD;
 //    fJulieTrackLengthInTank = JulieRecoTrackLengthInTank;
     fJulieRecoMRDStartVtxX = JulieRecoMRDStart.X();
-    fJulieRecoMRDStartVtxY = JulieRecoMRDStart.Y();
-    fJulieRecoMRDStartVtxZ = JulieRecoMRDStart.Z();
+    fJulieRecoMRDStartVtxY = JulieRecoMRDStart.Y()-14.46;
+    fJulieRecoMRDStartVtxZ = JulieRecoMRDStart.Z()+168.1;
     fJulieRecoMRDStopVtxX = JulieRecoMRDStop.X();
-    fJulieRecoMRDStopVtxY = JulieRecoMRDStop.Y();
-    fJulieRecoMRDStopVtxZ = JulieRecoMRDStop.Z();
+    fJulieRecoMRDStopVtxY = JulieRecoMRDStop.Y()-14.46;
+    fJulieRecoMRDStopVtxZ = JulieRecoMRDStop.Z()+168.1;
     fJulieRecoNeutrinoEnergy = JulieRecoNeutrinoEnergy;
     fJulieRecoQ2 = JulieRecoQ2;
   }
@@ -1806,8 +1806,8 @@ void PhaseIITreeMaker::FillMuonFitterInfo() {
   Position tmp_vtx(-999,-999,-999);
   m_data->CStore.Get("FittedMuonVertex", tmp_vtx);
   fRecoMuonVtxX = tmp_vtx.X();
-  fRecoMuonVtxY = tmp_vtx.Y();
-  fRecoMuonVtxZ = tmp_vtx.Z();
+  fRecoMuonVtxY = tmp_vtx.Y()-14.46;
+  fRecoMuonVtxZ = tmp_vtx.Z()+168.1;
   m_data->CStore.Get("FittedTrackLengthInWater", fRecoTankTrack);
   m_data->CStore.Get("RecoMuonKE", fRecoMuonKE);
   m_data->CStore.Get("NLyers", fNumMrdLayers);
