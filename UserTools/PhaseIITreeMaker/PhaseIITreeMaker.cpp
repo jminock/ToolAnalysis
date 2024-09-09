@@ -36,7 +36,8 @@ bool PhaseIITreeMaker::Initialise(std::string configfile, DataModel &data){
   
   m_variables.Get("Digit_fill",Digit_fill);
   m_variables.Get("MuonFitter_fill", MuonFitter_fill);    //juju
-
+  m_variables.Get("VertexDistancetoEdge_fill", VertexDistancetoEdge_fill);
+  m_variables.Get("CC0PiSignal_fill", CC0PiSignal_fill);
 
   std::string output_filename;
   m_variables.Get("OutputFile", output_filename);
@@ -401,6 +402,12 @@ bool PhaseIITreeMaker::Initialise(std::string configfile, DataModel &data){
       fPhaseIITrigTree->Branch("trueKPlusCher",&fTrueKPlusCher,"trueKPlusCher/I"); 
       fPhaseIITrigTree->Branch("trueKMinus",&fTrueKMinus,"trueKMinus/I");
       fPhaseIITrigTree->Branch("trueKMinusCher",&fTrueKMinusCher,"trueKMinusCher/I"); 
+      fPhaseIITrigTree->Branch("trueBJx",&fTrueBJx,"trueBJx/D");
+      fPhaseIITrigTree->Branch("truey",&fTruey,"truey/D");
+      fPhaseIITrigTree->Branch("trueq0",&fTrueq0,"trueq0/D");
+      fPhaseIITrigTree->Branch("trueq3",&fTrueq3,"trueq3/D");
+      fPhaseIITrigTree->Branch("trueTargetZ",&fTrueTarget,"trueTargetZ/I");
+      fPhaseIITrigTree->Branch("trueW2",&fTrueW2,"trueW2/D");
     }
 
     if (Reweight_fill){
@@ -512,6 +519,35 @@ bool PhaseIITreeMaker::Initialise(std::string configfile, DataModel &data){
       fPhaseIITrigTree->Branch("recoTankTrack", &fRecoTankTrack, "recoTankTrack/D");
       fPhaseIITrigTree->Branch("recoMuonKE", &fRecoMuonKE, "recoMuonKE/D");
       fPhaseIITrigTree->Branch("numMrdLayers", &fNumMrdLayers, "numMrdLayers/I");
+    }
+
+    if (VertexDistancetoEdge_fill){
+      if (MCTruth_fill){
+        fPhaseIITrigTree->Branch("trueDistanceToEdge",&fTrueDistanceToEdge,"trueDistanceToEdge/D");
+      }
+
+      if(SimpleReco_fill){
+        fPhaseIITrigTree->Branch("simpleRecoDistanceToEdge",&fSimpleDistanceToEdge,"simpleRecoDistanceToEdge/D");
+      }
+    }
+
+    if(CC0PiSignal_fill){
+      fPhaseIITrigTree->Branch("is_mc",&fTrueIs_mc);
+      fPhaseIITrigTree->Branch("mc_neutrino_is_numu",&fTruemc_neutrino_is_numu);
+      fPhaseIITrigTree->Branch("mc_vertex_in_FV",&fTruemc_vertex_in_FV);
+      fPhaseIITrigTree->Branch("mc_muon_in_mom_range",&fTruemc_muon_in_mom_range);
+      fPhaseIITrigTree->Branch("mc_lead_p_in_mom_range",&fTruemc_lead_p_in_mom_range);
+      fPhaseIITrigTree->Branch("mc_no_fs_mesons",&fTruemc_no_fs_mesons);
+
+      fPhaseIITrigTree->Branch("mc_no_fs_pi0",&fTruemc_no_fs_pi0);
+      fPhaseIITrigTree->Branch("mc_no_charged_pi_above_threshold",&fTruemc_no_charged_pi_above_threshold);
+      fPhaseIITrigTree->Branch("mc_is_cc0pi_signal",&fTruemc_is_cc0pi_signal);
+
+      fPhaseIITrigTree->Branch("mc_num_protons",&fTruemc_num_protons);
+      fPhaseIITrigTree->Branch("mc_num_neutrons",&fTruemc_num_neutrons);
+      fPhaseIITrigTree->Branch("mc_num_charged_pions",&fTruemc_num_charged_pions);
+      fPhaseIITrigTree->Branch("mc_num_neutral_pions",&fTruemc_num_neutral_pions);
+      fPhaseIITrigTree->Branch("category",&fTrue_category,"category/I");
     }
   }
   return true;
@@ -1077,9 +1113,18 @@ void PhaseIITreeMaker::ResetVariables() {
     fTrueKPlusCher = -9999;
     fTrueKMinus = -9999;
     fTrueKMinusCher = -9999;
+    fTrueDistanceToEdge= -9999;
+    fTrueW2 = -9999;
+    fTrueBJx = -9999;
+    fTruey = -9999;
+    fTrueTarget = -9999;
+    fTrueq0 = -9999;
+    fTrueq3 = -9999;
   }
 
   if (Reweight_fill){
+    fxsec_weights.clear();  
+    fflux_weights.clear(); 
     fAll.clear();
     fAxFFCCQEshape.clear();
     fDecayAngMEC.clear();
@@ -1205,6 +1250,7 @@ void PhaseIITreeMaker::ResetVariables() {
     fSimpleMRDStopX = -9999;
     fSimpleMRDStopY = -9999;
     fSimpleMRDStopZ = -9999;
+    fSimpleDistanceToEdge = -9999;
   }
   if(RingCounting_fill){
     fRCSRPred = -9999;
@@ -1268,6 +1314,36 @@ void PhaseIITreeMaker::ResetVariables() {
     fNumMrdLayers = -9999;
   }
   
+  if(CC0PiSignal_fill){
+
+/// Set Default Values before running throught conditions 
+// Signal definition requirements
+    fTrueIs_mc = 0;
+    fTruemc_neutrino_is_numu = 0;
+    fTruemc_vertex_in_FV = 0;
+    fTruemc_muon_in_mom_range = 0;
+    fTruemc_lead_p_in_mom_range = 0;
+
+    // Extra flags for looking specifically at final-state pions
+    // Set to True until Checked 
+
+    fTruemc_no_fs_mesons = 1;
+    fTruemc_no_fs_pi0 = 1;
+    fTruemc_no_charged_pi_above_threshold = 1;
+
+    fTruemc_is_cc0pi_signal = 0;
+
+    fTruemc_num_protons = 0;
+    fTruemc_num_neutrons = 0;
+    fTruemc_num_charged_pions = 0;
+    fTruemc_num_neutral_pions = 0;
+
+    fTrue_category = kUnknown;
+
+    //fTrue_PMag_vector.clear();
+    //fTrue_pdg_vector.clear();
+}
+
   //DIGITS
   if (Digit_fill){
     fdigitX.clear();
@@ -1782,11 +1858,11 @@ void PhaseIITreeMaker::FillMuonFitterInfo() {
     fJulieRecoFlag = JulieRecoFlag;
     fJulieRecoEnergy = JulieRecoEnergy;
     fJulieRecoVtxX = JulieRecoVtx.X();
-    fJulieRecoVtxY = JulieRecoVtx.Y()-14.46;
-    fJulieRecoVtxZ = JulieRecoVtx.Z()+168.1;
+    fJulieRecoVtxY = JulieRecoVtx.Y()-0.1446;
+    fJulieRecoVtxZ = JulieRecoVtx.Z()+1.681;
     fJulieRecoStopVtxX = JulieRecoStopVtx.X();
-    fJulieRecoStopVtxY = JulieRecoStopVtx.Y()-14.46;
-    fJulieRecoStopVtxZ = JulieRecoStopVtx.Z()+168.1;
+    fJulieRecoStopVtxY = JulieRecoStopVtx.Y()-0.1446;
+    fJulieRecoStopVtxZ = JulieRecoStopVtx.Z()+1.681;
     fJulieRecoCosTheta = JulieRecoCosTheta;
     fJulieRecoPt = JulieRecoPt;
     fJulieRecoFV = (JulieRecoFV)? 1 : 0;
@@ -1794,11 +1870,11 @@ void PhaseIITreeMaker::FillMuonFitterInfo() {
     fJulieRecoTrackLengthInMRD = JulieRecoTrackLengthInMRD;
 //    fJulieTrackLengthInTank = JulieRecoTrackLengthInTank;
     fJulieRecoMRDStartVtxX = JulieRecoMRDStart.X();
-    fJulieRecoMRDStartVtxY = JulieRecoMRDStart.Y()-14.46;
-    fJulieRecoMRDStartVtxZ = JulieRecoMRDStart.Z()+168.1;
+    fJulieRecoMRDStartVtxY = JulieRecoMRDStart.Y()-0.1446;
+    fJulieRecoMRDStartVtxZ = JulieRecoMRDStart.Z()+1.681;
     fJulieRecoMRDStopVtxX = JulieRecoMRDStop.X();
-    fJulieRecoMRDStopVtxY = JulieRecoMRDStop.Y()-14.46;
-    fJulieRecoMRDStopVtxZ = JulieRecoMRDStop.Z()+168.1;
+    fJulieRecoMRDStopVtxY = JulieRecoMRDStop.Y()-0.1446;
+    fJulieRecoMRDStopVtxZ = JulieRecoMRDStop.Z()+1.681;
     fJulieRecoNeutrinoEnergy = JulieRecoNeutrinoEnergy;
     fJulieRecoQ2 = JulieRecoQ2;
   }
@@ -1822,7 +1898,7 @@ void PhaseIITreeMaker::FillSimpleRecoInfo() {
   int SimpleRecoFlag;
   bool SimpleRecoFV;
   double SimpleRecoEnergy, SimpleRecoCosTheta, SimpleRecoPt, SimpleRecoMrdEnergyLoss, SimpleRecoTrackLengthInMRD;
-  double SimpleRecoTrackLengthInTank;
+  double SimpleRecoTrackLengthInTank, SimpleRecoDistanceToEdge;
   Position SimpleRecoVtx;
   Position SimpleRecoStopVtx;
   Position SimpleRecoMRDStart;
@@ -1839,6 +1915,7 @@ void PhaseIITreeMaker::FillSimpleRecoInfo() {
   auto get_tanktrack = m_data->Stores["RecoEvent"]->Get("SimpleRecoTrackLengthInTank",SimpleRecoTrackLengthInTank);
   auto get_mrdstart = m_data->Stores["RecoEvent"]->Get("SimpleRecoMRDStart",SimpleRecoMRDStart);
   auto get_mrdstop = m_data->Stores["RecoEvent"]->Get("SimpleRecoMRDStop",SimpleRecoMRDStop); 
+  auto get_distenceEdge = m_data->Stores["RecoEvent"]->Get("SimpleVtx_DistanceToEdge",SimpleRecoDistanceToEdge);
 
   if(get_flag && get_energy && get_vtx && get_stopvtx && get_cos && get_pt && get_fv && get_mrdenergy && get_mrdtrack && get_mrdstart && get_mrdstop){
     fSimpleFlag = SimpleRecoFlag;
@@ -1861,6 +1938,9 @@ void PhaseIITreeMaker::FillSimpleRecoInfo() {
     fSimpleMRDStopX = SimpleRecoMRDStop.X();
     fSimpleMRDStopY = SimpleRecoMRDStop.Y();
     fSimpleMRDStopZ = SimpleRecoMRDStop.Z();
+    if(VertexDistancetoEdge_fill && get_distenceEdge){
+      fSimpleDistanceToEdge = SimpleRecoDistanceToEdge;
+    }
   }
   return;
 }
@@ -2090,6 +2170,9 @@ bool PhaseIITreeMaker::FillMCTruthInfo() {
     bool TrueCC, TrueNC, TrueQEL, TrueDIS, TrueCOH, TrueMEC, TrueRES;
     int fsNeutrons, fsProtons, fsPi0, fsPiPlus, fsPiPlusCher, fsPiMinus, fsPiMinusCher;
     int fsKPlus, fsKPlusCher, fsKMinus, fsKMinusCher, TrueNuPDG, TrueFSLeptonPdg;
+    int TrueTarget;
+    double TrueW2, TrueBJx, Truey, Trueq0, Trueq3;
+    double TrueNuIntxVtxDisToEdge;
     Position TrueFSLeptonVtx;
     Direction TrueFSLeptonMomentum;
     Direction TrueNeutrinoMomentum;
@@ -2124,11 +2207,15 @@ bool PhaseIITreeMaker::FillMCTruthInfo() {
     bool get_fsl_mass = m_data->Stores["GenieInfo"]->Get("FSLeptonMass",TrueFSLeptonMass);
     bool get_fsl_pdg = m_data->Stores["GenieInfo"]->Get("FSLeptonPdg",TrueFSLeptonPdg);
     bool get_fsl_energy = m_data->Stores["GenieInfo"]->Get("FSLeptonEnergy",TrueFSLeptonEnergy);
-//    std::cout <<"get_neutrino_energy: "<<get_neutrino_energy<<"get_neutrino_vtxx: "<<get_neutrino_vtxx<<"get_neutrino_vtxy: "<<get_neutrino_vtxy<<"get_neutrino_vtxz: "<<get_neutrino_vtxz<<"get_neutrino_time: "<<get_neutrino_vtxt<<std::endl;
-//    std::cout <<"get_q2: "<<get_q2<<", get_cc: "<<get_cc<<", get_qel: "<<get_qel<<", get_res: "<<get_res<<", get_dis: "<<get_dis<<", get_coh: "<<get_coh<<", get_mec: "<<get_mec<<std::endl;
-//    std::cout <<"get_n: "<<get_n<<", get_p: "<<get_p<<", get_pi0: "<<get_pi0<<", get_piplus: "<<get_piplus<<", get_pipluscher: "<<get_pipluscher<<", get_piminus: "<<get_piminus<<", get_piminuscher: "<<get_piminuscher<<", get_kplus: "<<get_kplus<<", get_kpluscher: "<<get_kpluscher<<", get_kminus: "<<get_kminus<<", get_kminuscher: "<<get_kminuscher<<std::endl;
-//    std::cout <<"get_fsl_vtx: "<<get_fsl_vtx<<", get_fsl_momentum: "<<get_fsl_momentum<<", get_fsl_time: "<<get_fsl_time<<", get_fsl_mass: "<<get_fsl_mass<<", get_fsl_pdg: "<<get_fsl_pdg<<", get_fsl_energy: "<<get_fsl_energy<<std::endl;
-    if (get_neutrino_energy && get_neutrino_mom && get_neutrino_vtxx && get_neutrino_vtxy && get_neutrino_vtxz && get_neutrino_vtxt && get_q2 && get_cc && get_nc && get_qel && get_res && get_dis && get_coh && get_mec && get_n && get_p && get_pi0 && get_piplus && get_pipluscher && get_piminus && get_piminuscher && get_kplus && get_kpluscher && get_kminus && get_kminuscher && get_fsl_vtx && get_fsl_momentum && get_fsl_time && get_fsl_mass && get_fsl_pdg && get_fsl_energy ){
+    bool get_vtxzDistanceToEdge = m_data->Stores["GenieInfo"]->Get("True_DistanceToEdge",TrueNuIntxVtxDisToEdge);
+    bool get_w = m_data->Stores["GenieInfo"]->Get("EventW2",TrueW2);
+    bool get_bjx = m_data->Stores["GenieInfo"]->Get("EventBjx",TrueBJx);
+    bool get_y = m_data->Stores["GenieInfo"]->Get("Eventy",Truey);
+    bool get_targetZ = m_data->Stores["GenieInfo"]->Get("TargetZ",TrueTarget);
+    bool get_q0 = m_data->Stores["GenieInfo"]->Get("Eventq0",Trueq0);
+    bool get_q3 = m_data->Stores["GenieInfo"]->Get("Eventq3",Trueq3);
+    bool get_nu_pdg = m_data->Stores["GenieInfo"]->Get("NeutrinoPDG",TrueNuPDG);
+    if (get_neutrino_energy && get_neutrino_mom && get_neutrino_vtxx && get_neutrino_vtxy && get_neutrino_vtxz && get_neutrino_vtxt && get_q2 && get_cc && get_nc && get_qel && get_res && get_dis && get_coh && get_mec && get_n && get_p && get_pi0 && get_piplus && get_pipluscher && get_piminus && get_piminuscher && get_kplus && get_kpluscher && get_kminus && get_kminuscher && get_fsl_vtx && get_fsl_momentum && get_fsl_time && get_fsl_mass && get_fsl_pdg && get_fsl_energy && get_bjx && get_y && get_targetZ && get_q0 && get_q3 && get_w ){
       fTrueNeutrinoEnergy = TrueNeutrinoEnergy;
       fTrueNeutrinoMomentum_X = TrueNeutrinoMomentum.X();
       fTrueNeutrinoMomentum_Y = TrueNeutrinoMomentum.Y();
@@ -2148,6 +2235,12 @@ bool PhaseIITreeMaker::FillMCTruthInfo() {
       fTrueFSLPdg = TrueFSLeptonPdg;
       fTrueFSLEnergy = TrueFSLeptonEnergy;
       fTrueQ2 = TrueQ2;
+      fTrueW2 = TrueW2;
+      fTrueBJx = TrueBJx;
+      fTruey = Truey;
+      fTrueTarget = TrueTarget;
+      fTrueq0 = Trueq0;
+      fTrueq3 = Trueq3;
       fTrueCC = (TrueCC)? 1 : 0;
       fTrueNC = (TrueNC)? 1 : 0;
       fTrueQEL = (TrueQEL)? 1 : 0;
@@ -2166,6 +2259,32 @@ bool PhaseIITreeMaker::FillMCTruthInfo() {
       fTrueKPlusCher = fsKPlusCher;
       fTrueKMinus = fsKMinus;
       fTrueKMinusCher = fsKMinusCher;
+      if(CC0PiSignal_fill){
+        std::vector<int> Event_PDGs;
+        std::vector<double> Event_P;
+
+        if(verbosity>1)std::cout <<"CC0PiSignal_fill:line-2290"<< std::endl;
+        bool get_pdg_vector = m_data->Stores["GenieInfo"]->Get("pdg_vector",Event_PDGs);
+        bool get_P_vector = m_data->Stores["GenieInfo"]->Get("Pmag_vector",Event_P);
+
+        if(get_pdg_vector && get_P_vector){
+          if(verbosity>1){
+            std::cout <<"Inside::CC0PiSignal_fill"<< std::endl;
+            std::cout<<"Event_PDGs.size() = "<< Event_PDGs.size()<< std::endl; 
+            std::cout<<"Event_P.size()= "<< Event_P.size()<< std::endl;
+          }
+          // Need to double check this displacment I apply the distance in distance to the tank's edge
+          double KE_FS_muon =  TrueFSLeptonEnergy - TrueFSLeptonMass;
+          double Pmag_FS_muon = std::sqrt(TrueFSLeptonMomentum.X()*TrueFSLeptonMomentum.X() + TrueFSLeptonMomentum.Y()*TrueFSLeptonMomentum.Y() + TrueFSLeptonMomentum.Z()*TrueFSLeptonMomentum.Z());
+          bool insideFV = FidVol(TrueNuIntxVtx_X, TrueNuIntxVtx_Y, TrueNuIntxVtx_Z);
+          FillCC0pi_categorize_event(hasGenie, insideFV, TrueCC, TrueNuPDG, Event_PDGs, Event_P, TrueFSLeptonPdg, Pmag_FS_muon, fTrueTrackLengthInMRD, fTrueAngle); 
+        }
+        // I figured the vector would die once leaving the if statement , but that's not the case , it keeps adding to the vector , therefore I need to clear it here 
+
+        Event_PDGs.clear();
+        Event_P.clear(); 
+      }
+      if(get_vtxzDistanceToEdge && VertexDistancetoEdge_fill ) fTrueDistanceToEdge = TrueNuIntxVtxDisToEdge;
     } else {
       Log("PhaseIITreeMaker tool: Did not find GENIE information. Continuing building remaining tree",v_message,verbosity);
       successful_load = false;
@@ -2252,4 +2371,175 @@ void PhaseIITreeMaker::RecoSummary() {
   std::cout << "  FOM = " << fRecoVtxFOM << std::endl;
   std::cout << "  RecoStatus = " << fRecoStatus <<std::endl;
   std::cout << std::endl;
+}
+
+bool PhaseIITreeMaker::FidVol(double x, double y, double z){
+  double radius   = 100.;  //cm
+  double y_min    = -114.46; //cm
+  double y_max    = 85.54;  //cm
+  double z_center = 168.1;  //cm
+  if(y > y_min && y < y_max && radius > std::sqrt((z - z_center)*(z - z_center) + x*x)){
+    return true;
+  }
+  else {
+    return false;
+  }
+}
+
+void PhaseIITreeMaker::FillCC0pi_categorize_event(bool IsMC, bool insideFV, int isCC, int TrueNuPDG, std::vector<int> Event_PDGs, std::vector<double> Event_P, int TrueFSLPdg, double inputMC_Pmu, double mcmrdtracklength, double mcangle) {
+  // Real data has a bogus true neutrino PDG code that is not one of the
+  // allowed values (±12, ±14, ±16)
+
+  fTrueIs_mc = IsMC;
+
+  if ( !IsMC ) {
+    fTrue_category = kUnknown;
+    return; 
+  }
+
+  fTruemc_vertex_in_FV = insideFV;
+  fTruemc_neutrino_is_numu = (TrueNuPDG == MUON_NEUTRINO ) ? 1 : 0;
+
+  if ( !fTruemc_vertex_in_FV ) {
+    fTruemc_is_cc0pi_signal = 0;
+    fTrue_category =  kOOFV;
+    return; 
+  }
+  else if ( isCC==0 ) {
+    fTruemc_is_cc0pi_signal = 0;
+    fTrue_category =  kNC;
+    return; 
+  }
+  else if ( fTruemc_neutrino_is_numu != 1 ) {
+   fTruemc_is_cc0pi_signal = 0;
+    if ( TrueNuPDG == ELECTRON_NEUTRINO && isCC==1 ) {fTrue_category= kNuECC; return;}
+    else {
+      fTrue_category=kOther;
+      return;
+    }
+  }
+
+  // Should have already set defaults
+  //mc_muon_in_mom_range_ = false;
+  //mc_lead_p_in_mom_range_ = false;
+  //mc_no_fs_pi0_ = true;
+  //mc_no_charged_pi_above_threshold_ = true;
+  //mc_no_fs_mesons_ = true;
+
+  double lead_p_mom = LOW_FLOAT;
+
+  if(verbosity>=2) std::cout<<"Inside::FillCC0pi_categorize_event::starting Pdg Loop "<< std::endl;
+  if(verbosity>=2) std::cout<<"inputMC_Pmu = "<< inputMC_Pmu << " TrueFSLPdg = "<< TrueFSLPdg<< std::endl;
+
+  // It seems the Muon isn't included in the vector checking outside of loop 
+  if ( inputMC_Pmu > MUON_P_MIN_MOM_CUT && inputMC_Pmu < MUON_P_MAX_MOM_CUT && TrueFSLPdg==MUON && mcmrdtracklength > 0. && (std::cos(mcangle * M_PI / 180.) > MUON_FORWARD_GOING_CUT)) {
+    fTruemc_muon_in_mom_range = 1;
+  }
+	
+
+  for(size_t i = 0; i < Event_PDGs.size(); ++i){
+    int pdg = Event_PDGs.at(i);
+    double mom = Event_P.at(i);
+
+    if(verbosity>=2){
+      std::cout<< "Index: "<< i << " pdg =  "<< pdg <<  "mom "<< mom<< std::endl;
+    }
+
+    if ( is_meson_or_antimeson(pdg) ) {
+      fTruemc_no_fs_mesons = 0;
+    }
+
+    if ( pdg == MUON ) {
+      if(verbosity>=2){
+        std::cout<< "Is A Muon : Index =  "<< i << " pdg =  "<< pdg <<  "mom "<< mom<< std::endl;
+      }
+      if ( mom > MUON_P_MIN_MOM_CUT && mom < MUON_P_MAX_MOM_CUT ) {
+        fTruemc_muon_in_mom_range = 1;
+       //if(fTruemc_no_fs_mesons==0) fTruemc_num_charged_pions++;
+      }
+    }
+
+    else if ( pdg == PROTON ) {
+      if ( mom > lead_p_mom ) lead_p_mom = mom;
+      fTruemc_num_protons++;
+    }
+    else if ( pdg == NEUTRON ) {
+      fTruemc_num_neutrons++;
+    }
+    else if ( pdg == PI_ZERO ) {
+      if ( mom > CHARGED_PI_MOM_CUT ) {
+        fTruemc_no_fs_pi0 = 0;
+        fTruemc_num_neutral_pions ++;
+      }
+    }
+    else if ( std::abs(pdg) == PI_PLUS ) {
+      if ( mom > CHARGED_PI_MOM_CUT ) {
+        fTruemc_no_charged_pi_above_threshold = 0;
+        fTruemc_num_charged_pions ++;
+      }
+    }
+  }
+
+  // Check that the leading proton has a momentum within the allowed range
+  //for now I will define there is a leading proton if its KE is above the  water check threshold of 1.1 GeV for protons 
+  if ( lead_p_mom >= LEAD_P_MIN_MOM_CUT ) {
+    fTruemc_lead_p_in_mom_range = 1;
+  }
+
+  //mc_is_signal_ = mc_vertex_in_FV_ && mc_neutrino_is_numu_
+  //  && mc_muon_in_mom_range_ && mc_lead_p_in_mom_range_
+  //  && mc_no_fs_mesons_;
+
+  fTruemc_is_cc0pi_signal = (fTruemc_vertex_in_FV==1 && fTruemc_neutrino_is_numu==1 && fTruemc_muon_in_mom_range==1 && fTruemc_no_fs_mesons ==1 && fTruemc_no_charged_pi_above_threshold==1 && fTruemc_no_fs_pi0 ==1) ? 1 : 0;
+
+  // Sort signal by interaction mode
+  if ( fTruemc_is_cc0pi_signal ) {
+    if ( fTrueQEL==1 && fTrueRES== 0 && fTrueDIS==0 && fTrueCOH==0 && fTrueMEC==0) {fTrue_category= kSignalCCQE; return;  }// QE}
+    else if ( fTrueQEL==0 && fTrueRES== 0 && fTrueDIS==0 && fTrueCOH==0 && fTrueMEC==1 ) {fTrue_category= kSignalCCMEC;  return;} // MEC}
+    else if ( fTrueQEL==0 && fTrueRES== 1 && fTrueDIS==0 && fTrueCOH==0 && fTrueMEC==0 ) {fTrue_category= kSignalCCRES;  return;} // RES}
+    //else if ( mc_nu_interaction_type_ == 2 ) // DIS
+    //else if ( mc_nu_interaction_type_ == 3 ) // COH
+    else {fTrue_category= kSignalOther; return; }
+  }
+  else if ( fTruemc_no_fs_mesons==0 || fTruemc_no_charged_pi_above_threshold==0 || fTruemc_no_fs_pi0==0) {
+    fTrue_category= kNuMuCCNpi;
+    return; 
+  }
+  else {fTrue_category= kNuMuCCOther; return;}
+}
+
+
+bool PhaseIITreeMaker::is_meson_or_antimeson( int pdg_code ) {
+
+  // Ignore differences between mesons and antimesons for this test. Mesons
+  // will have positive PDG codes, while antimesons will have negative ones.
+  int abs_pdg = std::abs( pdg_code );
+
+  // Meson PDG codes have no more than seven digits. Seven-digit
+  // codes beginning with "99" are reserved for generator-specific
+  // particles
+  if ( abs_pdg >= 9900000 ) return false;
+
+  // Mesons have a value of zero for $n_{q1}$, the thousands digit
+  int thousands_digit = ( abs_pdg / 1000 ) % 10;
+  if ( thousands_digit != 0 ) return false;
+
+  // They also have a nonzero value for $n_{q2}$, the hundreds digit
+  int hundreds_digit = ( abs_pdg / 100 ) % 10;
+  if ( hundreds_digit == 0 ) return false;
+
+  // Reserved codes for Standard Model parton distribution functions
+  if ( abs_pdg >= 901 && abs_pdg <= 930 ) return false;
+
+  // Reggeon and pomeron
+  if ( abs_pdg == 110 || abs_pdg == 990 ) return false;
+
+  // Reserved codes for GEANT tracking purposes
+  if ( abs_pdg == 998 || abs_pdg == 999 ) return false;
+
+  // Reserved code for generator-specific pseudoparticles
+  if ( abs_pdg == 100 ) return false;
+
+  // If we've passed all of the tests above, then the particle is a meson
+  return true;
 }

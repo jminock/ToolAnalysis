@@ -27,6 +27,7 @@ __pycache__/
 *.rootmap
 *_dictUmbrella.h
 *_dictContent.h
+*.png
 
 # we also build the datamodel linkdef on the fly
 DataModel/DataModel_Linkdef.hh

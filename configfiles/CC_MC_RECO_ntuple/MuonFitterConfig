@@ -1,4 +1,4 @@
-verbosity 1
+verbosity 0
 
 OutputFile MC_MuonFitter_Reco_2998.root
 IsData 0                # 1:is data, not MC; 0:not data, is MC

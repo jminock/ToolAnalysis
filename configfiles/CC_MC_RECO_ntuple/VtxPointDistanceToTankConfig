@@ -1,0 +1,5 @@
+# Config file for Distance of vertex to edge
+verbosity 2
+IsData 0
+HasGenie 1
+MakeSimple 1

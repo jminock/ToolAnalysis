@@ -79,7 +79,10 @@ class PhaseIITreeMaker: public Tool {
   bool LoadTankClusterClassifiers(double cluster_time);
   void LoadAllTankHits(bool IsData);
   void LoadSiPMHits();
-  
+
+  bool is_meson_or_antimeson( int pdg_code );
+  void FillCC0pi_categorize_event(bool IsMC, bool insideFV, int isCC, int TrueNuPDG, std::vector<int> Event_PDGs, std::vector<double> Event_P, int TrueFSLPdg, double inputMC_Pmu, double mcmrdtracklength, double mcangle);
+  bool FidVol(double x, double y, double z);  
   
  private:
 
@@ -130,6 +133,10 @@ class PhaseIITreeMaker: public Tool {
   int fExtended;	//extended window variable, 0: no extended readout, 1: CC extended readout, 2: Non-CC extended readout
   double fPot;
   int fBeamok;	//1: beam is ok, 0: beam is not ok 
+  float BOGUS = 9999.;
+  int BOGUS_INT = 9999;
+  int BOGUS_INDEX = -1;
+  float LOW_FLOAT = -1e30;
 
   // \brief Event Status flag masks
   int fEventStatusApplied;
@@ -264,6 +271,7 @@ class PhaseIITreeMaker: public Tool {
   std::vector<double> *fTrueNeutCapE = nullptr;
   std::vector<double>* fTrueNeutCapGammaE = nullptr;
   int fTrueMultiRing;
+  double fTrueDistanceToEdge;
 
   //Weights
   std::map<std::string, std::vector<double>> fxsec_weights;
@@ -314,6 +322,12 @@ class PhaseIITreeMaker: public Tool {
   int fTrueFSLPdg;
   double fTrueFSLEnergy;
   double fTrueQ2;
+  double fTrueW2;
+  double fTrueBJx;
+  double fTruey;
+  double fTrueq0;
+  double fTrueq3;
+  int fTrueTarget;
   int fTrueCC;
   int fTrueNC;
   int fTrueQEL;
@@ -340,6 +354,85 @@ class PhaseIITreeMaker: public Tool {
   int fK0Count;
   int fKPlusCount;
   int fKMinusCount;
+
+/////////////////////////////////////////////////////////////////
+// CC0pi Signal Categories 
+/////////////////////////////////////////////////////////////////
+  const int kUnknown = 0;
+
+  // Signal events broken down by underlying reaction mode
+  const int kSignalCCQE = 1;
+  const int kSignalCCMEC = 2;
+  const int kSignalCCRES = 3;
+  const int kSignalOther = 4;
+
+  // True numu CC event with at least one final-state pion above threshold
+  const int kNuMuCCNpi = 5;
+
+  // True numu CC event with zero final-state pions above threshold and
+  // zero final-state protons above threshold
+  const int kNuMuCC0pi0p = 6;
+
+  // Any true numu CC event which does not satisfy the criteria for inclusion
+  // in one of the other categories above
+  const int kNuMuCCOther = 7;
+
+  // True nue CC event
+  const int kNuECC = 8;
+
+  // True neutral current event for any neutrino flavor
+  const int kNC = 9;
+
+  // True neutrino vertex (any reaction mode and flavor combination) is outside
+  // of the fiducial volume
+  const int kOOFV = 10;
+
+  // All events that do not fall within any of the other categories (e.g.,
+  // numubar CC)
+  const int kOther = 11;
+///////////////////////////////////////////////////////////////////////
+
+  // Signal definition requirements
+  int fTrueIs_mc;
+  int fTruemc_neutrino_is_numu;
+  int fTruemc_vertex_in_FV;
+  int fTruemc_muon_in_mom_range;
+  int fTruemc_lead_p_in_mom_range;
+  int fTruemc_no_fs_mesons;
+  // Intersection of all of these requirements
+  //bool mc_is_signal_ ;
+
+  // Extra flags for looking specifically at final-state pions
+  int fTruemc_no_fs_pi0;
+  int fTruemc_no_charged_pi_above_threshold;
+
+  int fTruemc_is_cc0pi_signal;
+
+  int fTruemc_num_protons;
+  int fTruemc_num_neutrons;
+  int fTruemc_num_charged_pions;
+  int fTruemc_num_neutral_pions;
+
+  // Water Cherenkov cuts
+  int fTrue_category;
+
+  const int ELECTRON_NEUTRINO = 12;
+  const int MUON = 13;
+  const int MUON_NEUTRINO = 14;
+  const int TAU_NEUTRINO = 16;
+  const int PROTON = 2212;
+  const int NEUTRON = 2112;
+  const int PI_ZERO = 111;
+  const int PI_PLUS = 211;
+
+  // Checked in GeV 
+  const double MUON_P_MIN_MOM_CUT = 600;  // MeV/c
+  const double MUON_P_MAX_MOM_CUT = 1200; // MeV/c
+  const double MUON_FORWARD_GOING_CUT = 0.8;
+  const double CHARGED_PI_MOM_CUT = .160; //water Cherenkov momentum threshold GeV
+
+  const double LEAD_P_MIN_MOM_CUT = 1.100;  // GeV //water Cherenkov momentum threshold of Proton 
+  const double LEAD_P_MAX_MOM_CUT = 1.100; // GeV  currently not using a maxium threshold for protons
 
   // **************** Full reco chain information ************* //
   //  seed vertices
@@ -396,6 +489,7 @@ class PhaseIITreeMaker: public Tool {
   double fSimpleMRDStopX;
   double fSimpleMRDStopY;
   double fSimpleMRDStopZ;
+  double fSimpleDistanceToEdge;
 
   // Ring Counting
   double fRCSRPred;
@@ -482,7 +576,8 @@ class PhaseIITreeMaker: public Tool {
   bool SiPMPulseInfo_fill = 0;
   bool Digit_fill = 0;
   bool MuonFitter_fill = 0; //juju
-
+  bool VertexDistancetoEdge_fill = 0;
+  bool CC0PiSignal_fill = 0; 
 };
 
 

@@ -1,4 +1,4 @@
-verbose 1
+verbose 0
 
 IsData 0
 HasGenie 1
@@ -15,6 +15,8 @@ SimpleReco_fill 1
 RingCounting_fill 1
 Reweight_fill 0
 MuonFitter_fill 1
+VertexDistancetoEdge_fill 1
+CC0PiSignal_fill 1
 
-OutputFile PhaseIITree_0.MF.test.root
+OutputFile PhaseIITree_0.0.0.root
 #NumEventsWritten 2000

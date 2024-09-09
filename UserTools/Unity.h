@@ -177,3 +177,4 @@
 #include "SaveConfigInfo.h"
 #include "ReadConfigInfo.h"
 #include "MuonFitter.h"
+#include "VtxPointDistanceToTank.h"
