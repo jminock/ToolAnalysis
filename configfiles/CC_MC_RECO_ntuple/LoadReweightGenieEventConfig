@@ -24,8 +24,8 @@ genie_module_label generator
 
 genie_central_values MaCCQE:4.9778|RPA_CCQE:0.151|NormCCMEC:1.31189|XSecShape_CCMEC:1.0
 
-#weight_functions_xsec All,AxFFCCQEshape,DecayAngMEC,NormCCCOH,Norm_NCCOH,RPA_CCQE,RootinoFix,ThetaDelta2NRad,Theta_Delta2Npi,TunedCentralValue,VecFFCCQEshape,XSecShape_CCMEC
-weight_functions_xsec All2
+weight_functions_xsec All,AxFFCCQEshape,DecayAngMEC,NormCCCOH,Norm_NCCOH,RPA_CCQE,RootinoFix,ThetaDelta2NRad,Theta_Delta2Npi,TunedCentralValue,VecFFCCQEshape,XSecShape_CCMEC
+#weight_functions_xsec All2
 
   # INDIVIDUAL WEIGHT CALCULATORS
   # Thse use "minmax" mode and represent a variation between two extremes. The

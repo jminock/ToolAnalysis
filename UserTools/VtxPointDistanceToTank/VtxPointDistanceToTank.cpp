@@ -152,8 +152,8 @@ bool VtxPointDistanceToTank::GetTRUE_Vertex(){
     // = truevtx->GetPosition().Y();
     // = truevtx->GetPosition().Z();
     fTrueVtxX = TrueNuIntxVtx_X;
-    fTrueVtxY = TrueNuIntxVtx_Y - DisplacementTRUE_Y;
-    fTrueVtxZ = TrueNuIntxVtx_Z + DisplacementTRUE_Z;
+    fTrueVtxY = TrueNuIntxVtx_Y;
+    fTrueVtxZ = TrueNuIntxVtx_Z;
 
      Log("GOT vertex (X,Y,Z)= ( " + std::to_string(fTrueVtxX) + ", " +
         std::to_string(fTrueVtxY) + ", " +

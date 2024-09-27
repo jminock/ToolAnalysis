@@ -8,8 +8,8 @@ OnGrid 0
 
 
   #Full set of well-formed Beam Uncertainties for use with post-MCC8 Flux
-#weight_functions_flux piplus,piminus,kplus,kzero,kminus,horncurrent,pioninexsec,nucleontotxsec,nucleonqexsec,nucleoninexsec,pionqexsec,piontotxsec,expskin
-weight_functions_flux piplus2
+weight_functions_flux piplus,piminus,kplus,kzero,kminus,horncurrent,pioninexsec,nucleontotxsec,nucleonqexsec,nucleoninexsec,pionqexsec,piontotxsec,expskin
+#weight_functions_flux piplus2
 
 
 # FLUX CONFIGS

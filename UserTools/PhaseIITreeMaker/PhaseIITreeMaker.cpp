@@ -2490,7 +2490,7 @@ void PhaseIITreeMaker::FillCC0pi_categorize_event(bool IsMC, bool insideFV, int 
   //  && mc_muon_in_mom_range_ && mc_lead_p_in_mom_range_
   //  && mc_no_fs_mesons_;
 
-  fTruemc_is_cc0pi_signal = (fTruemc_vertex_in_FV==1 && fTruemc_neutrino_is_numu==1 && fTruemc_muon_in_mom_range==1 && fTruemc_no_fs_mesons ==1 && fTruemc_no_charged_pi_above_threshold==1 && fTruemc_no_fs_pi0 ==1) ? 1 : 0;
+  fTruemc_is_cc0pi_signal = (isCC==1 && fTruemc_vertex_in_FV==1 && fTruemc_neutrino_is_numu==1 && fTruemc_muon_in_mom_range==1 && fTruemc_no_fs_mesons ==1 && fTruemc_no_charged_pi_above_threshold==1 && fTruemc_no_fs_pi0 ==1) ? 1 : 0;
 
   // Sort signal by interaction mode
   if ( fTruemc_is_cc0pi_signal ) {
@@ -2501,11 +2501,13 @@ void PhaseIITreeMaker::FillCC0pi_categorize_event(bool IsMC, bool insideFV, int 
     //else if ( mc_nu_interaction_type_ == 3 ) // COH
     else {fTrue_category= kSignalOther; return; }
   }
-  else if ( fTruemc_no_fs_mesons==0 || fTruemc_no_charged_pi_above_threshold==0 || fTruemc_no_fs_pi0==0) {
-    fTrue_category= kNuMuCCNpi;
-    return; 
+  if ( fTruemc_neutrino_is_numu==1 && isCC==1 ) {
+    if ( fTruemc_no_fs_mesons==0 || fTruemc_no_charged_pi_above_threshold==0 || fTruemc_no_fs_pi0==0) {
+      fTrue_category= kNuMuCCNpi;
+      return; 
+    }
+    else if ( fTruemc_is_cc0pi_signal==0 ) {fTrue_category= kNuMuCCOther; return;}
   }
-  else {fTrue_category= kNuMuCCOther; return;}
 }
 
 

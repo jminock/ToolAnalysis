@@ -204,7 +204,7 @@ bool LoadGenieEvent::Execute(){
 	
 	// all neutrino intx details are in the event record
 	genie::EventRecord* gevtRec = genieintx->event;
-	
+
 	if(fluxver==0){
 		// FLUXVER 0 - genie::flux::GNuMIFluxPassThroughInfo
 		// =================================================

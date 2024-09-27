@@ -13,7 +13,7 @@ MRDReco_fill 1
 TankReco_fill 1
 SimpleReco_fill 1
 RingCounting_fill 1
-Reweight_fill 0
+Reweight_fill 1
 MuonFitter_fill 1
 VertexDistancetoEdge_fill 1
 CC0PiSignal_fill 1
