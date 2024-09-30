@@ -60,7 +60,7 @@ bool VtxPointDistanceToTank::Execute(){
 if(makeSimple){
   this->GetSimpleRECO_Vertex();
   //std::cout<<" GOT SIMPLE RECO vertex (X,Y,Z)= ("<< fSimpleVtxX*100<< ", "<< fSimpleVtxY*100<< ", "<< fSimpleVtxZ*100<< " ) "<< std::endl;
-  fSimpleVtx_DistanceToEdge = ANNIEGeometry::Instance()->DistanceToEdge(fSimpleVtxX*100, fSimpleVtxY*100, fSimpleVtxZ*100);
+  fSimpleVtx_DistanceToEdge = ANNIEGeometry::Instance()->DistanceToEdge(fSimpleVtxX*100, fSimpleVtxY*100 + 14.46, fSimpleVtxZ*100 - 168.1);
 
   Log("fSimpleVtx_DistanceToEdge = " + std::to_string(fSimpleVtx_DistanceToEdge), v_debug, verbosity);
   //if(true){std::cout<<" fSimpleVtx_DistanceToEdge = "<< fSimpleVtx_DistanceToEdge<< std::endl;
@@ -72,7 +72,7 @@ if(makeSimple){
 if(hasGenie){
   this->GetTRUE_Vertex();
    //std::cout<<" GOT TRUE vertex (X,Y,Z)= ("<< fTrueVtxX<< ", "<< fTrueVtxY<< ", "<< fTrueVtxZ<< " ) "<< std::endl;
-  fTrue_DistanceToEdge = ANNIEGeometry::Instance()->DistanceToEdge(fTrueVtxX, fTrueVtxY, fTrueVtxZ);
+  fTrue_DistanceToEdge = ANNIEGeometry::Instance()->DistanceToEdge(fTrueVtxX, fTrueVtxY + 14.46, fTrueVtxZ - 168.1);
   //if(true){std::cout<<" fTrue_DistanceToEdge = "<< fTrue_DistanceToEdge<< std::endl;}
     Log("fTrue_DistanceToEdge = " + std::to_string(fTrue_DistanceToEdge), v_debug, verbosity);
     m_data->Stores["GenieInfo"]->Set("True_DistanceToEdge",fTrue_DistanceToEdge);
