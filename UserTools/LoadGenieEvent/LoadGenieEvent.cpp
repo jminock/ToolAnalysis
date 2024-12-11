@@ -201,7 +201,12 @@ bool LoadGenieEvent::Execute(){
 	// header only contains the event number
 	genie::NtpMCRecHeader hdr = genieintx->hdr;
 	unsigned int genie_event_num = hdr.ievent;
-	
+
+//	std::ofstream fout;
+//	fout.open("POT.txt", ios::app);
+//	fout << flux->GetWeight() << std::endl;
+//	fout.close();
+
 	// all neutrino intx details are in the event record
 	genie::EventRecord* gevtRec = genieintx->event;
 

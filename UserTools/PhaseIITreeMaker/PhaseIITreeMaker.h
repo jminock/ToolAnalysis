@@ -234,6 +234,7 @@ class PhaseIITreeMaker: public Tool {
   std::vector<bool> fMRDSide;
   std::vector<bool> fMRDStop;
   std::vector<bool> fMRDThrough;
+  int fMRDContained;
 
   // Trigger-level information
   std::map<std::string,bool> fDataStreams;
@@ -258,6 +259,7 @@ class PhaseIITreeMaker: public Tool {
   double fTrueAngle;
   double fTruePhi;
   double fTrueMuonEnergy;
+  double fTrueMuonMomentum;
   int fTruePrimaryPdg;
   double fTrueTrackLengthInWater; 
   double fTrueTrackLengthInMRD; 
@@ -471,6 +473,8 @@ class PhaseIITreeMaker: public Tool {
   // Simple Reco
   int fSimpleFlag;
   double fSimpleEnergy;
+  double fSimpleMomentum;
+  double fSimpleMomentumCor;
   double fSimpleVtxX;
   double fSimpleVtxY;
   double fSimpleVtxZ;

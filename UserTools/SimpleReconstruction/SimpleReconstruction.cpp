@@ -387,7 +387,8 @@ bool SimpleReconstruction::SimpleVertexReconstruction(){
   Log("SimpleEnergyReconstruction: Reconstructed interaction vertex: ("+std::to_string(SimpleRecoVtx.X())+","+std::to_string(SimpleRecoVtx.Y())+","+std::to_string(SimpleRecoVtx.Z())+")",v_message,verbosity);
 
   //Check if vertex is in Fiducial Volume
-  if (sqrt(reco_vtx_x*reco_vtx_x+(reco_vtx_z-1.681)*(reco_vtx_z-1.681))<1.0 && fabs(reco_vtx_y)<0.5 && ((reco_vtx_z-1.681) < 0.)) SimpleRecoFV = true;
+//  if (sqrt(reco_vtx_x*reco_vtx_x+(reco_vtx_z-1.681)*(reco_vtx_z-1.681))<1.0 && fabs(reco_vtx_y)<0.5 && ((reco_vtx_z-1.681) < 0.)) SimpleRecoFV = true;
+  if (sqrt(reco_vtx_x*reco_vtx_x+(reco_vtx_z-1.681)*(reco_vtx_z-1.681))<1.0 && fabs(reco_vtx_y+0.1446)<1.0) SimpleRecoFV = true;
 
   return true;
 

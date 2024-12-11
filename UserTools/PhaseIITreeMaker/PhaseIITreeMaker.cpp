@@ -275,6 +275,7 @@ bool PhaseIITreeMaker::Initialise(std::string configfile, DataModel &data){
       fPhaseIITrigTree->Branch("MRDSide",&fMRDSide);
       fPhaseIITrigTree->Branch("MRDStop",&fMRDStop);
       fPhaseIITrigTree->Branch("MRDThrough",&fMRDThrough);
+      fPhaseIITrigTree->Branch("reco_contained_in_MRD",&fMRDContained);
     }
 
     //Reconstructed variables after full Muon Reco Analysis
@@ -296,6 +297,8 @@ bool PhaseIITreeMaker::Initialise(std::string configfile, DataModel &data){
     if(SimpleReco_fill){
       fPhaseIITrigTree->Branch("simpleRecoFlag",&fSimpleFlag,"simpleRecoFlag/I");
       fPhaseIITrigTree->Branch("simpleRecoEnergy",&fSimpleEnergy,"simpleRecoEnergy/D");
+      fPhaseIITrigTree->Branch("simpleRecoMomentum",&fSimpleMomentum,"simpleRecoMomentum/D");
+      fPhaseIITrigTree->Branch("simpleRecoMomentumCor",&fSimpleMomentumCor,"simpleRecoMomentumCor/D");
       fPhaseIITrigTree->Branch("simpleRecoVtxX",&fSimpleVtxX,"simpleRecoVtxX/D");
       fPhaseIITrigTree->Branch("simpleRecoVtxY",&fSimpleVtxY,"simpleRecoVtxY/D");
       fPhaseIITrigTree->Branch("simpleRecoVtxZ",&fSimpleVtxZ,"simpleRecoVtxZ/D");
@@ -346,6 +349,7 @@ bool PhaseIITreeMaker::Initialise(std::string configfile, DataModel &data){
       fPhaseIITrigTree->Branch("trueAngle",&fTrueAngle,"trueAngle/D");
       fPhaseIITrigTree->Branch("truePhi",&fTruePhi,"truePhi/D");
       fPhaseIITrigTree->Branch("trueMuonEnergy",&fTrueMuonEnergy,"trueMuonEnergy/D");
+      fPhaseIITrigTree->Branch("trueMuonMomentum",&fTrueMuonMomentum,"trueMuonMomentum/D");
       fPhaseIITrigTree->Branch("truePrimaryPdg",&fTruePrimaryPdg,"truePrimaryPdg/I");
       fPhaseIITrigTree->Branch("trueTrackLengthInWater",&fTrueTrackLengthInWater,"trueTrackLengthInWater/D");
       fPhaseIITrigTree->Branch("trueTrackLengthInMRD",&fTrueTrackLengthInMRD,"trueTrackLengthInMRD/D");
@@ -1053,6 +1057,7 @@ void PhaseIITreeMaker::ResetVariables() {
     fTrueVtxZ = -9999;
     fTrueVtxTime = -9999;
     fTrueMuonEnergy = -9999;
+    fTrueMuonMomentum = -9999;
     fTrueTrackLengthInWater = -9999;
     fTrueTrackLengthInMRD = -9999;
     fTrueDirX = -9999;
@@ -1228,10 +1233,13 @@ void PhaseIITreeMaker::ResetVariables() {
     fMRDSide.clear();
     fMRDStop.clear();
     fMRDThrough.clear();
+    fMRDContained = -9999;
   }
   if(SimpleReco_fill){
     fSimpleFlag = -9999;
     fSimpleEnergy = -9999;
+    fSimpleMomentum = -9999;
+    fSimpleMomentumCor = -9999;
     fSimpleVtxX = -9999;
     fSimpleVtxY = -9999;
     fSimpleVtxZ = -9999;
@@ -1627,6 +1635,7 @@ int PhaseIITreeMaker::LoadMRDTrackReco(int SubEventID) {
   bool IsMrdPenetrating;
   bool IsMrdStopped;
   bool IsMrdSideExit;
+  fMRDContained = 1;
 
   int NumClusterTracks = 0;
   for(int tracki=0; tracki<numtracksinev; tracki++){
@@ -1672,6 +1681,9 @@ int PhaseIITreeMaker::LoadMRDTrackReco(int SubEventID) {
     fMRDSide.push_back(IsMrdSideExit);
     fMRDThrough.push_back(IsMrdPenetrating);
     NumClusterTracks+=1;
+  }
+  for(int tracki=0; tracki<numtracksinev; tracki++){
+    if(fMRDStop[tracki] != 1) fMRDContained = 0;
   }
   return NumClusterTracks;
 }
@@ -1896,9 +1908,12 @@ void PhaseIITreeMaker::FillSimpleRecoInfo() {
     Log("Error: The PhaseIITreeMaker tool could not find the RecoEvent Store", v_error, verbosity);
   }
   int SimpleRecoFlag;
+  double muon_m = 105.66;
   bool SimpleRecoFV;
   double SimpleRecoEnergy, SimpleRecoCosTheta, SimpleRecoPt, SimpleRecoMrdEnergyLoss, SimpleRecoTrackLengthInMRD;
   double SimpleRecoTrackLengthInTank, SimpleRecoDistanceToEdge;
+  double momentum = 0.;
+  double momentum_cor = 0.;
   Position SimpleRecoVtx;
   Position SimpleRecoStopVtx;
   Position SimpleRecoMRDStart;
@@ -1920,6 +1935,15 @@ void PhaseIITreeMaker::FillSimpleRecoInfo() {
   if(get_flag && get_energy && get_vtx && get_stopvtx && get_cos && get_pt && get_fv && get_mrdenergy && get_mrdtrack && get_mrdstart && get_mrdstop){
     fSimpleFlag = SimpleRecoFlag;
     fSimpleEnergy = SimpleRecoEnergy;
+    if(SimpleRecoEnergy != -9999){
+      momentum = std::sqrt(SimpleRecoEnergy*SimpleRecoEnergy - muon_m*muon_m);
+      momentum_cor = momentum*(1./0.8) - 137.;
+    } else {
+      momentum = -9999;
+      momentum_cor = -9999;
+    }
+    fSimpleMomentum = momentum;
+    fSimpleMomentumCor = momentum_cor;
     fSimpleVtxX = SimpleRecoVtx.X();
     fSimpleVtxY = SimpleRecoVtx.Y();
     fSimpleVtxZ = SimpleRecoVtx.Z();
@@ -2052,7 +2076,8 @@ bool PhaseIITreeMaker::FillMCTruthInfo() {
   auto get_muonMC = m_data->Stores.at("RecoEvent")->Get("TrueVertex",truevtx);
   auto get_muonMCEnergy = m_data->Stores.at("RecoEvent")->Get("TrueMuonEnergy",fTrueMuonEnergy);
   auto get_pdg = m_data->Stores.at("RecoEvent")->Get("PdgPrimary",fTruePrimaryPdg);
-  if(get_muonMC && get_muonMCEnergy){ 
+  if(get_muonMC && get_muonMCEnergy){
+    fTrueMuonMomentum = std::sqrt(fTrueMuonEnergy*fTrueMuonEnergy - 105.66*105.66); 
     fTrueVtxX = truevtx->GetPosition().X();
     fTrueVtxY = truevtx->GetPosition().Y();
     fTrueVtxZ = truevtx->GetPosition().Z();
@@ -2215,7 +2240,8 @@ bool PhaseIITreeMaker::FillMCTruthInfo() {
     bool get_q0 = m_data->Stores["GenieInfo"]->Get("Eventq0",Trueq0);
     bool get_q3 = m_data->Stores["GenieInfo"]->Get("Eventq3",Trueq3);
     bool get_nu_pdg = m_data->Stores["GenieInfo"]->Get("NeutrinoPDG",TrueNuPDG);
-    if (get_neutrino_energy && get_neutrino_mom && get_neutrino_vtxx && get_neutrino_vtxy && get_neutrino_vtxz && get_neutrino_vtxt && get_q2 && get_cc && get_nc && get_qel && get_res && get_dis && get_coh && get_mec && get_n && get_p && get_pi0 && get_piplus && get_pipluscher && get_piminus && get_piminuscher && get_kplus && get_kpluscher && get_kminus && get_kminuscher && get_fsl_vtx && get_fsl_momentum && get_fsl_time && get_fsl_mass && get_fsl_pdg && get_fsl_energy && get_bjx && get_y && get_targetZ && get_q0 && get_q3 && get_w ){
+//    if (get_neutrino_energy && get_neutrino_mom && get_neutrino_vtxx && get_neutrino_vtxy && get_neutrino_vtxz && get_neutrino_vtxt && get_q2 && get_cc && get_nc && get_qel && get_res && get_dis && get_coh && get_mec && get_n && get_p && get_pi0 && get_piplus && get_pipluscher && get_piminus && get_piminuscher && get_kplus && get_kpluscher && get_kminus && get_kminuscher && get_fsl_vtx && get_fsl_momentum && get_fsl_time && get_fsl_mass && get_fsl_pdg && get_fsl_energy && get_bjx && get_y && get_targetZ && get_q0 && get_q3 && get_w ){
+    if (true){
       fTrueNeutrinoEnergy = TrueNeutrinoEnergy;
       fTrueNeutrinoMomentum_X = TrueNeutrinoMomentum.X();
       fTrueNeutrinoMomentum_Y = TrueNeutrinoMomentum.Y();
