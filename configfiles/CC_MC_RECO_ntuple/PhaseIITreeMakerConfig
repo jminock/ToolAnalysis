@@ -14,7 +14,7 @@ TankReco_fill 1
 SimpleReco_fill 1
 RingCounting_fill 1
 Reweight_fill 1
-MuonFitter_fill 1
+MuonFitter_fill 0
 HasBNBtimingMC 1
 TankClusterProcessing 1
 MRDClusterProcessing 1
