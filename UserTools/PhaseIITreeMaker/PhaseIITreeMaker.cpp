@@ -70,11 +70,11 @@ bool PhaseIITreeMaker::Initialise(std::string configfile, DataModel &data){
     //Some lower level information to save
     fPhaseIITankClusterTree->Branch("eventNumber",&fEventNumber,"eventNumber/I");
     fPhaseIITankClusterTree->Branch("eventTimeTank",&fEventTimeTank_Tree,"eventTimeTank/l");
-    fPhaseIITankClusterTree->Branch("clusterNumber",&fClusterNumber,"clusterNumber/I");
-    fPhaseIITankClusterTree->Branch("clusterTime",&fClusterTime,"clusterTime/D");
-    fPhaseIITankClusterTree->Branch("clusterCharge",&fClusterCharge,"clusterCharge/D");
-    fPhaseIITankClusterTree->Branch("clusterPE",&fClusterPE,"clusterPE/D");
-    fPhaseIITankClusterTree->Branch("clusterMaxPE",&fClusterMaxPE,"clusterMaxPE/D");
+    fPhaseIITrigTree->Branch("clusterNumber",&fClusterNumber,"clusterNumber/I");
+    fPhaseIITrigTree->Branch("clusterTime",&fClusterTime,"clusterTime/D");
+    fPhaseIITrigTree->Branch("clusterCharge",&fClusterCharge,"clusterCharge/D");
+    fPhaseIITrigTree->Branch("clusterPE",&fClusterPE,"clusterPE/D");
+    fPhaseIITrigTree->Branch("clusterMaxPE",&fClusterMaxPE,"clusterMaxPE/D");
     fPhaseIITankClusterTree->Branch("clusterChargePointX",&fClusterChargePointX,"clusterChargePointX/D");
     fPhaseIITankClusterTree->Branch("clusterChargePointY",&fClusterChargePointY,"clusterChargePointY/D");
     fPhaseIITankClusterTree->Branch("clusterChargePointZ",&fClusterChargePointZ,"clusterChargePointZ/D");
