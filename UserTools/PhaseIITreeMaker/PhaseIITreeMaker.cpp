@@ -416,7 +416,7 @@ bool PhaseIITreeMaker::Initialise(std::string configfile, DataModel &data){
     }
 
     if (Reweight_fill){
-      fPhaseIITrigTree->Branch("XSecWeights",&fxsec_weights);
+/*      fPhaseIITrigTree->Branch("XSecWeights",&fxsec_weights);
       fPhaseIITrigTree->Branch("FluxWeights",&fflux_weights);
       fPhaseIITrigTree->Branch("weight_All_UBGenie",&fAll);
       fPhaseIITrigTree->Branch("weight_AxFFCCQEshape_UBGenie",&fAxFFCCQEshape);
@@ -427,8 +427,8 @@ bool PhaseIITreeMaker::Initialise(std::string configfile, DataModel &data){
       fPhaseIITrigTree->Branch("weight_RootinoFix_UBGenie",&fRootinoFix);
       fPhaseIITrigTree->Branch("weight_ThetaDelta2NRad_UBGenie",&fThetaDelta2NRad);
       fPhaseIITrigTree->Branch("weight_Theta_Delta2Npi_UBGenie",&fTheta_Delta2Npi);
-      fPhaseIITrigTree->Branch("weight_TunedCentralValue_UBGenie",&fTunedCentralValue);
-      fPhaseIITrigTree->Branch("weight_VecFFCCQEshape_UBGenie",&fVecFFCCQEshape);
+*/      fPhaseIITrigTree->Branch("weight_TunedCentralValue_UBGenie",&fTunedCentralValue);
+/*      fPhaseIITrigTree->Branch("weight_VecFFCCQEshape_UBGenie",&fVecFFCCQEshape);
       fPhaseIITrigTree->Branch("weight_XSecShape_CCMEC_UBGenie",&fXSecShape_CCMEC); 
       fPhaseIITrigTree->Branch("weight_horncurrent_FluxUnisim",&fhorncurrent);
       fPhaseIITrigTree->Branch("weight_expskin_FluxUnisim",&fexpskin);
@@ -443,7 +443,7 @@ bool PhaseIITreeMaker::Initialise(std::string configfile, DataModel &data){
       fPhaseIITrigTree->Branch("weight_nucleoninexsec_FluxUnisim",&fnucleoninexsec);
       fPhaseIITrigTree->Branch("weight_nucleonqexsec_FluxUnisim",&fnucleonqexsec);
       fPhaseIITrigTree->Branch("weight_nucleontotxsec_FluxUnisim",&fnucleontotxsec);
-    } 
+*/    } 
 
     //MuonFitter reco track length, vtx, energy; juju
     if (MuonFitter_fill)
@@ -899,7 +899,7 @@ bool PhaseIITreeMaker::Execute(){
     //DIGITS
     if(Digit_fill) this->LoadDigitHits();
     //DIGITS
-    /*/
+    /*
     if(Digit_fill){
        // get digits from RecoDigit store
        std::vector<RecoDigit>* digitList;
@@ -924,7 +924,7 @@ bool PhaseIITreeMaker::Execute(){
        Log("PhaseIITreeMaker Tool: Got "+to_string(totalPMTs)+" PMT digits; "+to_string(digitT.size()) +" total digits so far",v_debug,verbosity);
        Log("PhaseIITreeMaker Tool: Got "+to_string(totalLAPPDs)+" LAPPD digits; "+to_string(digitT.size()) +" total digits",v_debug,verbosity);
     }
-/*/
+*/
 
     if(MRDReco_fill){
       fNumClusterTracks=0;
@@ -2144,7 +2144,7 @@ bool PhaseIITreeMaker::FillMCTruthInfo() {
 
 void PhaseIITreeMaker::FillWeightInfo() {
   bool get_xsec_weights = m_data->Stores.at("ANNIEEvent")->Get("xsec_weights",fxsec_weights);
-  bool get_flux_weights = m_data->Stores.at("ANNIEEvent")->Get("flux_weights",fflux_weights);
+/*  bool get_flux_weights = m_data->Stores.at("ANNIEEvent")->Get("flux_weights",fflux_weights);
   if (get_xsec_weights && get_flux_weights){
     fAll = fxsec_weights["All"];
     fAxFFCCQEshape = fxsec_weights["AxFFCCQEshape"];
@@ -2155,8 +2155,8 @@ void PhaseIITreeMaker::FillWeightInfo() {
     fRootinoFix = fxsec_weights["RootinoFix"];
     fThetaDelta2NRad = fxsec_weights["ThetaDelta2NRad"];
     fTheta_Delta2Npi = fxsec_weights["Theta_Delta2Npi"];
-    fTunedCentralValue = fxsec_weights["TunedCentralValue"];
-    fVecFFCCQEshape = fxsec_weights["VecFFCCQEshape"];
+*/    fTunedCentralValue = fxsec_weights["TunedCentralValue"];
+/*    fVecFFCCQEshape = fxsec_weights["VecFFCCQEshape"];
     fXSecShape_CCMEC = fxsec_weights["XSecShape_CCMEC"];
     fhorncurrent = fflux_weights["horncurrent_FluxUnisim"];
     fexpskin = fflux_weights["expskin_FluxUnisim"];
@@ -2172,7 +2172,7 @@ void PhaseIITreeMaker::FillWeightInfo() {
     fnucleonqexsec = fflux_weights["nucleonqexsec_FluxUnisim"];
     fnucleontotxsec = fflux_weights["nucleontotxsec_FluxUnisim"];
   }
-}
+*/}
 
 void PhaseIITreeMaker::FillTruthRecoDiffInfo(bool successful_mcload,bool successful_recoload) {
   if (!successful_mcload || !successful_recoload) {
