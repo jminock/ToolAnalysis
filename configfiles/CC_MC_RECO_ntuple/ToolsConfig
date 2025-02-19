@@ -18,4 +18,3 @@ mySimpleReconstruction SimpleReconstruction configfiles/CC_MC_RECO_ntuple/Simple
 #myMuonFitter MuonFitter configfiles/CC_MC_RECO_ntuple/MuonFitterConfig
 myAssignBunchTimingMC AssignBunchTimingMC ./configfiles/CC_MC_RECO_ntuple/AssignBunchTimingMCConfig
 myPhaseIITreeMaker PhaseIITreeMaker configfiles/CC_MC_RECO_ntuple/PhaseIITreeMakerConfig
-
