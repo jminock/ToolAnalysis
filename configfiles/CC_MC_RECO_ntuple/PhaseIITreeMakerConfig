@@ -6,14 +6,14 @@ RecoDebug_fill 1
 MCTruth_fill 1
 muonTruthRecoDiff_fill 0
 pionKaonCount_fill 0
-TankHitInfo_fill 0
-MRDHitInfo 0
+TankHitInfo_fill 1
+MRDHitInfo 1
 fillCleanEventsOnly 0
 MRDReco_fill 1
 TankReco_fill 1
 SimpleReco_fill 1
 RingCounting_fill 1
-Reweight_fill 1
+Reweight_fill 0
 MuonFitter_fill 0
 HasBNBtimingMC 1
 TankClusterProcessing 1

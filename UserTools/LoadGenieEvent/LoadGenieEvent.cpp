@@ -197,7 +197,10 @@ bool LoadGenieEvent::Execute(){
 	
 	// Expand out the neutrino event info
 	// =======================================================
-	
+//	std::ofstream outfile;
+//	outfile.open("POT.txt", std::ios_base::app);
+//	outfile << flux->GetWeight() << "\n";
+//	outfile.close();
 	// header only contains the event number
 	genie::NtpMCRecHeader hdr = genieintx->hdr;
 	unsigned int genie_event_num = hdr.ievent;

@@ -194,6 +194,7 @@ class PhaseIITreeMaker: public Tool {
   std::map<double,double> ClusterMaxPEs;
   std::map<double,Position> ClusterChargePoints;
   std::map<double,double> ClusterChargeBalances;
+  int fNumberOfClusters;
   int fClusterNumber;
   int fNumClusterTracks;
   int fClusterHits;
@@ -260,6 +261,12 @@ class PhaseIITreeMaker: public Tool {
   double fTrueTrackLengthInWater; 
   double fTrueTrackLengthInMRD; 
   std::vector<int> *fTruePrimaryPdgs = nullptr;
+  std::vector<double> *fTrueFSPTankLength = nullptr;
+  std::vector<double> *fTrueFSPMrdLength = nullptr;
+  std::vector<bool> *fTrueFSPContained = nullptr;
+  std::vector<double> *fTrueFSPMrdAngle = nullptr;
+  std::vector<double> *fTrueFSPE = nullptr;
+
   std::vector<double> *fTrueNeutCapVtxX = nullptr;
   std::vector<double> *fTrueNeutCapVtxY = nullptr;
   std::vector<double> *fTrueNeutCapVtxZ = nullptr;

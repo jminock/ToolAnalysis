@@ -14,6 +14,10 @@ verbose 0
 InputFile ./wcsim_0.0.0.root
 #InputFile /pnfs/annie/persistent/users/mnieslon/wcsim/output/tankonly/wcsim_ANNIEp2v7_beam/pmt-files/wcsim_beam_gst_1060_91_0.7091.root
 
+PMTMask configfiles/CC_MC_RECO_ntuple/DeadPMTIDs_p2v7.txt ## Which PMTs should be masked out? / are dead?
+ChankeyToPMTIDMap ./configfiles/CC_MC_RECO_ntuple/Chankey_WCSimID_v7.txt
+S
+
 WCSimVersion 3               ## should reflect the WCSim version of the files being loaded
 HistoricTriggeroffset 0      ## time offset of digits relative to the trigger
 UseDigitSmearedTime 1        ## whether to use smeared digit time (T), or true time of first photon (F)

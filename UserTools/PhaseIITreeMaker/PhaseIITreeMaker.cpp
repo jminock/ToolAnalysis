@@ -248,6 +248,7 @@ bool PhaseIITreeMaker::Initialise(std::string configfile, DataModel &data){
       fPhaseIITrigTree->Branch("hitDetID", &fHitDetID);
       fPhaseIITrigTree->Branch("hitChankey", &fHitChankey);
       fPhaseIITrigTree->Branch("hitChankeyMC",&fHitChankeyMC);
+      fPhaseIITrigTree->Branch("numberOfClusters",&fNumberOfClusters,"numberOfClusters/I");
     }
 
     if(MRDHitInfo_fill){
@@ -339,6 +340,11 @@ bool PhaseIITreeMaker::Initialise(std::string configfile, DataModel &data){
       fTrueNeutCapE = new std::vector<double>;
       fTrueNeutCapGammaE = new std::vector<double>;
       fTruePrimaryPdgs = new std::vector<int>;
+      fTrueFSPTankLength = new std::vector<double>;
+      fTrueFSPMrdLength = new std::vector<double>;
+      fTrueFSPContained = new std::vector<bool>;
+      fTrueFSPMrdAngle = new std::vector<double>;
+      fTrueFSPE = new std::vector<double>;
       fPhaseIITrigTree->Branch("triggerNumber",&fiMCTriggerNum,"triggerNumber/I");
       fPhaseIITrigTree->Branch("mcEntryNumber",&fMCEventNum,"mcEntryNumber/I");
       fPhaseIITrigTree->Branch("trueVtxX",&fTrueVtxX,"trueVtxX/D");
@@ -362,6 +368,11 @@ bool PhaseIITreeMaker::Initialise(std::string configfile, DataModel &data){
       fPhaseIITrigTree->Branch("KPlusCount",&fKPlusCount,"KPlusCount/I");
       fPhaseIITrigTree->Branch("KMinusCount",&fKMinusCount,"KMinusCount/I");
       fPhaseIITrigTree->Branch("truePrimaryPdgs",&fTruePrimaryPdgs);
+      fPhaseIITrigTree->Branch("trueFSPTankLength",&fTrueFSPTankLength);
+      fPhaseIITrigTree->Branch("trueFSPMrdLength",&fTrueFSPMrdLength);
+      fPhaseIITrigTree->Branch("trueFSPContained",&fTrueFSPContained);
+      fPhaseIITrigTree->Branch("trueFSPMrdAngle",&fTrueFSPMrdAngle);
+      fPhaseIITrigTree->Branch("trueFSPE",&fTrueFSPE);
       fPhaseIITrigTree->Branch("trueNeutCapVtxX",&fTrueNeutCapVtxX);
       fPhaseIITrigTree->Branch("trueNeutCapVtxY",&fTrueNeutCapVtxY);
       fPhaseIITrigTree->Branch("trueNeutCapVtxZ",&fTrueNeutCapVtxZ);
@@ -568,7 +579,8 @@ bool PhaseIITreeMaker::Execute(){
     int cluster_size = 0;
     if (isData) cluster_size = (int) m_all_clusters->size();
     else cluster_size = (int) m_all_clusters_MC->size();
-      
+    fNumberOfClusters = cluster_size;
+
     std::map<double,std::vector<Hit>>::iterator it_cluster_pair;
     std::map<double,std::vector<MCHit>>::iterator it_cluster_pair_mc;
     bool loop_map = true;
@@ -1032,6 +1044,7 @@ void PhaseIITreeMaker::ResetVariables() {
     fClusterNumber = -9999;
     fADCWaveformSamples.clear();
     fADCWaveformChankeys.clear();
+    fNumberOfClusters = 0;
   } 
   if(MCTruth_fill){ 
     fMCEventNum = -9999;
@@ -1056,6 +1069,11 @@ void PhaseIITreeMaker::ResetVariables() {
     fKMinusCount = -9999;
     fTrueMultiRing = -9999;
     fTruePrimaryPdgs->clear();
+    fTrueFSPTankLength->clear();
+    fTrueFSPMrdLength->clear();
+    fTrueFSPContained->clear();
+    fTrueFSPMrdAngle->clear();
+    fTrueFSPE->clear();
     fTrueNeutCapVtxX->clear();
     fTrueNeutCapVtxY->clear();
     fTrueNeutCapVtxZ->clear();
@@ -1992,6 +2010,31 @@ bool PhaseIITreeMaker::FillMCTruthInfo() {
     Log("PhaseIITreeMaker Tool: Primary Pdgs information missing. Continuing to build tree",v_message,verbosity);
     successful_load = false;
   }
+
+  std::vector<double> fsptanklength;
+  std::vector<double> fspmrdlength;
+  std::vector<bool> fspcontained;
+  std::vector<double> fspmrdangle;
+  std::vector<double> fspE;
+  bool has_tanktrack = m_data->Stores.at("RecoEvent")->Get("FSPTankTrackLengths",fsptanklength);
+  bool has_mrdtrack = m_data->Stores.at("RecoEvent")->Get("FSPMrdTrackLengths",fspmrdlength);
+  bool has_contain = m_data->Stores.at("RecoEvent")->Get("FSPContained",fspcontained);
+  bool has_mrdangle = m_data->Stores.at("RecoEvent")->Get("FSPMrdAngles",fspmrdangle);
+  bool has_E = m_data->Stores.at("RecoEvent")->Get("FSPEnergies",fspE);
+  if (has_tanktrack && has_mrdtrack && has_contain && has_mrdangle && has_E){
+    for (int i_part=0; i_part < (int) fspE.size(); i_part++){
+      fTrueFSPTankLength->push_back(fsptanklength.at(i_part));
+      fTrueFSPMrdLength->push_back(fspmrdlength.at(i_part));
+      fTrueFSPContained->push_back(fspcontained.at(i_part));
+      fTrueFSPMrdAngle->push_back(fspmrdangle.at(i_part));
+      fTrueFSPE->push_back(fspE.at(i_part));
+    }
+  } else {
+    Log("PhaseIITreeMaker Tool: FSP information missing. Continuing to build tree",v_message,verbosity);
+    successful_load = false;
+  }
+
+
 
   int pi0count, pipcount, pimcount, K0count, Kpcount, Kmcount;
   auto get_pi0 = m_data->Stores.at("RecoEvent")->Get("MCPi0Count",pi0count);
