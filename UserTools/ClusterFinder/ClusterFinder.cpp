@@ -1,4 +1,5 @@
 #include "ClusterFinder.h"
+#include <algorithm>
 
 ClusterFinder::ClusterFinder():Tool(){}
 
@@ -490,7 +491,10 @@ bool ClusterFinder::Execute(){
         }
       }
     }
-    
+
+//    double max_time = *std::max_element(v_local_cluster_times.begin(),v_local_cluster_times.end());
+//    double min_time = *std::min_element(v_local_cluster_times.begin(),v_local_cluster_times.end());
+//    double local_dt = max_time - min_time;
     for (std::vector<double>::iterator itt = v_local_cluster_times.begin(); itt != v_local_cluster_times.end(); ++itt) {
      local_cluster_time += *itt;
     }

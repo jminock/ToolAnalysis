@@ -24,6 +24,7 @@ class MCRecoEventLoader: public Tool {
   bool fGetPiKInfo;
   bool fGetNRings;
   int fParticleID;
+  bool fFollowerCheck;
   double xshift;
   double yshift;
   double zshift;
@@ -66,6 +67,14 @@ class MCRecoEventLoader: public Tool {
   /// between start and stop points
  	
   void FindPionKaonCountFromMC();
+
+  /// \brief Find and save followers from neutral pion decays
+  ///
+  /// Loop over the descendants of primary pions. Find and save
+  /// any and all descendants that would show up in the detector such as:
+  /// muons, electrons, or gammas
+
+  void FindFollowersFromMC();
 
   /// \brief GetCherenkovThresholdE
   /// Get Cherenkov threshold energy for a given particle PDG number code

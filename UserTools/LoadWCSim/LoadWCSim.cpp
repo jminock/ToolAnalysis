@@ -75,6 +75,7 @@ bool LoadWCSim::Initialise(std::string configfile, DataModel &data){
 		Log("LoadWCSim Tool: No Triggerword specified. Assuming TriggerWord = 5 (Beam)",v_warning,verbosity);
 		TriggerWord = 5;
 	}
+
 	path_chankeymap = "./configfiles/LoadWCSim/Chankey_WCSimID_v7.txt";
 	get_ok = m_variables.Get("ChankeyToPMTIDMap",path_chankeymap);
 	if (not get_ok){
@@ -402,8 +403,22 @@ bool LoadWCSim::Execute(){
 		if(verbosity>2) cout<<"atrigt="<<atrigt<<", atrigm="<<atrigm<<", atrigv="<<atrigv<<endl;
 		
 		if(verbosity>1) cout<<"getting event date"<<endl;
-		RunNumber = atrigt->GetHeader()->GetRun();
-		SubrunNumber = 0;
+
+		std::string wcsimfile = MCFile;
+		//Strip WCSim file name of its prefix path
+		std::string wcsim_prefix = "wcsim_0.";
+		wcsimfile.erase(0,wcsimfile.find(wcsim_prefix)+wcsim_prefix.length());
+		wcsimfile.erase(wcsimfile.find(".root"),wcsimfile.find(".root")+5);
+		std::string wcsimev = wcsimfile;
+		wcsimfile.erase(wcsimfile.find("."),wcsimfile.length());
+		wcsimev.erase(0,wcsimev.find(".")+1);
+
+		std::string::size_type sz;
+		int wcsimfilenumber = std::stoi(wcsimfile,&sz);
+		int wcsimevnumber = std::stoi(wcsimev,&sz);
+
+		RunNumber = wcsimfilenumber;//atrigt->GetHeader()->GetRun();
+		SubrunNumber = wcsimevnumber;//0;
 		EventTimeNs = atrigt->GetHeader()->GetDate();
 		EventTime->SetNs(EventTimeNs);
 		if(verbosity>2) cout<<"EventTime is "<<EventTimeNs<<"ns"<<endl;
@@ -413,13 +428,12 @@ bool LoadWCSim::Execute(){
 			MCParticles->clear();
 			trackid_to_mcparticleindex->clear();
 			primarymuonindex=-1;
-			
+
 			std::string geniefilename = firsttrigt->GetHeader()->GetGenieFileName().Data();
 			int genieentry = firsttrigt->GetHeader()->GetGenieEntryNum();
 			if(verbosity>1) cout<<"Genie file is "<<geniefilename<<", genie event num was "<<genieentry<<endl;
 			m_data->CStore.Set("GenieFile",geniefilename);
 			m_data->CStore.Set("GenieEntry",genieentry);
-			
 			for(int trigi=0; trigi<WCSimEntry->wcsimrootevent->GetNumberOfEvents(); trigi++){
 				
 				WCSimRootTrigger* atrigtt = WCSimEntry->wcsimrootevent->GetTrigger(trigi);

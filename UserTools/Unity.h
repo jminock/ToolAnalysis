@@ -104,6 +104,7 @@
 #include "CalcClassificationVars.h"
 #include "StoreClassificationVars.h"
 #include "LoadGenieEvent.h"
+#include "LoadNUISANCEEvent.h"
 #include "PrintGenieEvent.h"
 #include "PlotWaveforms.h"
 #include "PMTDataDecoder.h"

@@ -16,6 +16,7 @@ bool MCRecoEventLoader::Initialise(std::string configfile, DataModel &data){
   fGetPiKInfo = 1;
   fGetNRings = 1;
   fParticleID = 13;
+  fFollowerCheck = 0;
   xshift = 0.;
   yshift = 14.46469;
   zshift = -168.1;
@@ -25,6 +26,7 @@ bool MCRecoEventLoader::Initialise(std::string configfile, DataModel &data){
   m_variables.Get("GetPionKaonInfo", fGetPiKInfo);
   m_variables.Get("GetNRings",fGetNRings);
   m_variables.Get("ParticleID", fParticleID);
+  m_variables.Get("FollowerCheck", fFollowerCheck);
   m_variables.Get("xshift", xshift);
   m_variables.Get("yshift", yshift);
   m_variables.Get("zshift", zshift);
@@ -78,6 +80,7 @@ bool MCRecoEventLoader::Execute(){
   ///Get MC Particle information
   this->FindTrueVertexFromMC();
   if (fGetPiKInfo) this->FindPionKaonCountFromMC();
+  if (fFollowerCheck) this->FindFollowersFromMC();
   
   this->PushIBDInfo();
 
@@ -209,6 +212,11 @@ void MCRecoEventLoader::FindPionKaonCountFromMC() {
   std::vector<bool> contained_tracks;
   std::vector<double> mrd_angle;
   std::vector<double> energies;
+  std::vector<double> start_t;
+  std::vector<double> stop_t;
+  std::vector<double> dirx;
+  std::vector<double> diry;
+  std::vector<double> dirz;
 
   if(fMCParticles){
     Log("MCRecoEventLoader::  Tool: Num MCParticles = "+to_string(fMCParticles->size()),v_message,verbosity);
@@ -222,6 +230,11 @@ void MCRecoEventLoader::FindPionKaonCountFromMC() {
 	tank_tracks.push_back( aparticle.GetTrackLengthInTank() );
         mrd_tracks.push_back( aparticle.GetTrackLengthInMrd()*100. );
         energies.push_back( aparticle.GetStartEnergy() );
+        start_t.push_back( aparticle.GetStartTime() );
+        stop_t.push_back( aparticle.GetStopTime() );
+        dirx.push_back( aparticle.GetStartDirection().X() );
+        diry.push_back( aparticle.GetStartDirection().Y() );
+        dirz.push_back( aparticle.GetStartDirection().Z() );
         if(!aparticle.GetExitsTank()){
           contained_tracks.push_back(true);
           mrd_angle.push_back(-9999);
@@ -298,7 +311,7 @@ void MCRecoEventLoader::FindPionKaonCountFromMC() {
   if (fGetNRings){
     Log("MCRecoEventLoader: Found "+std::to_string(nrings)+" rings in this event, from "+std::to_string(nprimary)+" primary particles and "+std::to_string(nsecondary)+" secondary particles.",2,verbosity);
   }
-  std::cout << std::endl;
+//  std::cout << std::endl;
   //Fill in pion counts for this event
   m_data->Stores.at("RecoEvent")->Set("MCPi0Count", pi0count);
   m_data->Stores.at("RecoEvent")->Set("MCPiPlusCount", pipcount);
@@ -312,6 +325,11 @@ void MCRecoEventLoader::FindPionKaonCountFromMC() {
   m_data->Stores.at("RecoEvent")->Set("FSPContained",contained_tracks);
   m_data->Stores.at("RecoEvent")->Set("FSPMrdAngles",mrd_angle);
   m_data->Stores.at("RecoEvent")->Set("FSPEnergies",energies);
+  m_data->Stores.at("RecoEvent")->Set("FSPStartT",start_t);
+  m_data->Stores.at("RecoEvent")->Set("FSPStopT",stop_t);
+  m_data->Stores.at("RecoEvent")->Set("FSPDirX",dirx);
+  m_data->Stores.at("RecoEvent")->Set("FSPDirY",diry);
+  m_data->Stores.at("RecoEvent")->Set("FSPDirZ",dirz);
 
   if (fGetNRings) {
     m_data->Stores.at("RecoEvent")->Set("NRings",nrings);
@@ -354,5 +372,43 @@ void MCRecoEventLoader::PushIBDInfo(){
   
 }
 
+void MCRecoEventLoader::FindFollowersFromMC(){
+  vector<double> followerE;
+  vector<double> followerX;
+  vector<double> followerY;
+  vector<double> followerZ;
+  vector<double> followerStartT;
+  vector<double> followerStopT;
+  vector<int> followerPDG;
+  vector<int> followerParentPDG;
 
+  if(fMCParticles){
+    Log("MCRecoEventLoader::  Tool: Num MCParticles = "+to_string(fMCParticles->size()),v_message,verbosity);
+    for(unsigned int particlei=0; particlei<fMCParticles->size(); particlei++){
+      MCParticle aparticle = fMCParticles->at(particlei);
+      //if(v_debug<verbosity) aparticle.Print();       // print if we're being *really* verbose
+      if(aparticle.GetParentPdg()==0) continue;     //not primary particle
+      if(TMath::Abs(aparticle.GetPdgCode()) == 11 || TMath::Abs(aparticle.GetPdgCode()) == 13 || (aparticle.GetPdgCode() == 22 && aparticle.GetParentPdg() == 111)){
+        followerE.push_back(aparticle.GetStartEnergy());
+        followerPDG.push_back(aparticle.GetPdgCode());
+        followerParentPDG.push_back(aparticle.GetParentPdg());
+        followerStartT.push_back(aparticle.GetStartTime());
+        followerStopT.push_back(aparticle.GetStopTime());
+        followerX.push_back(aparticle.GetStartDirection().X());
+        followerY.push_back(aparticle.GetStartDirection().Y());
+        followerZ.push_back(aparticle.GetStartDirection().Z());
+      }
+    }
+  } 
+
+  m_data->Stores.at("RecoEvent")->Set("FollowerE",followerE);
+  m_data->Stores.at("RecoEvent")->Set("FollowerPDG",followerPDG);
+  m_data->Stores.at("RecoEvent")->Set("FollowerParentPDG",followerParentPDG);
+  m_data->Stores.at("RecoEvent")->Set("FollowerStartT",followerStartT);
+  m_data->Stores.at("RecoEvent")->Set("FollowerStopT",followerStopT);
+  m_data->Stores.at("RecoEvent")->Set("FollowerDirX",followerX);
+  m_data->Stores.at("RecoEvent")->Set("FollowerDirY",followerY);
+  m_data->Stores.at("RecoEvent")->Set("FollowerDirZ",followerZ);
+
+}
 

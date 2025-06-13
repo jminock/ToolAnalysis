@@ -4,7 +4,7 @@ InitialiseFunction Initialise
 ExecuteFunction Execute
 FinaliseFunction Finalise
 
-verbose 1
+verbose 0
 
 # analysis specific settings
 # 
